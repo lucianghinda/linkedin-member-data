@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "changelog/page"
+
 module LinkedIn
   module MemberData
     # Lazy view over GET /rest/memberChangeLogs (last 28 days).
@@ -16,14 +18,6 @@ module LinkedIn
       PATH = "/rest/memberChangeLogs"
       COUNT_RANGE = (1..50)
       DEFAULT_COUNT = 10
-
-      Page = Data.define(:events, :raw) do
-        def self.from_api(raw)
-          new(events: raw.fetch("elements", []).map { |element| Event.from_api(element) }, raw: raw)
-        end
-
-        def next_start_time = events.last&.processed_at_ms
-      end
 
       # Cursor state of one walk. A new one is built for every iteration.
       Walk = Struct.new(:start_time, :seen_ids) do

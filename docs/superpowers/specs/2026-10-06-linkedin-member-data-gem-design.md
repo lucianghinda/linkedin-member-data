@@ -122,8 +122,10 @@ lib/linkedin/member_data/client.rb     # config + factory for resources
 lib/linkedin/member_data/connection.rb # Net::HTTP, headers, JSON, errors, retries
 lib/linkedin/member_data/errors.rb
 lib/linkedin/member_data/domains.rb    # Domains::ALL
-lib/linkedin/member_data/snapshot.rb   # Snapshot, Snapshot::Page
-lib/linkedin/member_data/changelog.rb  # Changelog, Changelog::Page
+lib/linkedin/member_data/snapshot.rb   # Snapshot
+lib/linkedin/member_data/snapshot/page.rb
+lib/linkedin/member_data/changelog.rb  # Changelog
+lib/linkedin/member_data/changelog/page.rb
 lib/linkedin/member_data/event.rb      # Event = Data.define(...)
 lib/linkedin/member_data/authorization.rb
 lib/linkedin/member_data/cli.rb
