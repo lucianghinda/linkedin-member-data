@@ -24,3 +24,7 @@ Items raised by reviewers that were deliberately deferred. Revisit before 0.1.0.
 - CLI: leftover positional arguments are ignored (`domains extra`,
   `snapshot A B`). Consider raising a usage error.
 - CLI: `--all` with `--out`, or DOMAIN with `--out-dir`, is silently ignored.
+- CLI: `rescue ArgumentError` maps every ArgumentError to a usage error
+  (exit 2). Narrow it later with dedicated subclasses (for example
+  `Changelog::InvalidCount < ArgumentError`) or validate `--count` and
+  DOMAIN in the CLI before calling the library.
