@@ -1,3 +1,7 @@
-# Reek guards library code. Test helpers are allowed to be utility functions.
+# Extends the quality_gate default: no forced class comments, and tests are
+# allowed to have utility helpers.
+detectors:
+  IrresponsibleModule:
+    enabled: false
 exclude_paths:
   - test
