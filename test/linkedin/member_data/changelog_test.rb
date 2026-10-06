@@ -121,4 +121,45 @@ class LinkedIn::MemberData::ChangelogTest < Minitest::Test
   def test_each_without_block_returns_enumerator
     assert_kind_of Enumerator, @client.changelog.each
   end
+
+  def test_stops_when_last_event_has_no_processed_at
+    @transport.respond(200, page(event(1, 100), event(2, 200)))
+              .respond(200, page(event(2, 200), event(3, nil)))
+
+    assert_equal [1, 2, 3], @client.changelog(count: 2).map(&:id)
+    assert_equal 2, @transport.requests.size
+  end
+
+  def test_events_beyond_count_sharing_one_processed_at_are_unreachable
+    @transport.respond(200, page(event(1, 100), event(2, 100))).respond(200, page(event(1, 100), event(2, 100)))
+
+    assert_equal [1, 2], @client.changelog(count: 2).map(&:id)
+    assert_equal 2, @transport.requests.size
+  end
+
+  def test_count_must_be_an_integer
+    assert_raises(ArgumentError) { @client.changelog(count: 2.5) }
+    assert_raises(ArgumentError) { @client.changelog(count: nil) }
+  end
+
+  def test_each_twice_walks_again_with_a_fresh_walk
+    2.times { @transport.respond(200, page(event(1, 100))).respond(200, page(event(1, 100))) }
+    changelog = @client.changelog
+
+    assert_equal [1], changelog.to_a.map(&:id)
+    assert_equal [1], changelog.to_a.map(&:id)
+  end
+
+  def test_each_with_block_returns_the_changelog
+    @transport.respond(200, page)
+    changelog = @client.changelog
+
+    assert_same(changelog, changelog.each { |_event| nil })
+  end
+
+  def test_next_start_time_is_nil_for_an_empty_page
+    @transport.respond(200, page)
+
+    assert_nil @client.changelog.page(0).next_start_time
+  end
 end
