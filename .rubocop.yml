@@ -41,4 +41,5 @@ Naming/RescuedExceptionsVariableName:
 
 # enable_changelog! returns true and keeps its bang: it changes state on the server.
 Naming/PredicateMethod:
-  AllowBangMethods: true
+  AllowedMethods:
+    - "enable_changelog!"

@@ -15,6 +15,12 @@ class LinkedIn::MemberData::ClientTest < Minitest::Test
     assert_raises(ConfigurationError) { Client.new(access_token: "  ") }
   end
 
+  def test_uses_injected_connection
+    connection = Connection.new(access_token: "t")
+
+    assert_same connection, Client.new(access_token: "t", connection: connection).connection
+  end
+
   def test_builds_a_connection_by_default
     client = Client.new(access_token: "tok")
 

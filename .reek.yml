@@ -15,5 +15,9 @@ detectors:
   MissingSafeMethod:
     exclude:
       - enable_changelog!
+  # Picks between an injected and a new Connection; needs no instance state.
+  UtilityFunction:
+    exclude:
+      - connection_for
 exclude_paths:
   - test
