@@ -3,6 +3,7 @@
 require "net/http"
 require "json"
 require "uri"
+require "openssl"
 
 module LinkedIn
   module MemberData
@@ -11,7 +12,12 @@ module LinkedIn
     class Connection
       BASE_URL = "https://api.linkedin.com"
       API_VERSION = "202312"
-      RETRYABLE_EXCEPTIONS = [Net::OpenTimeout, Net::ReadTimeout, Errno::ECONNRESET].freeze
+      RETRYABLE_EXCEPTIONS = [
+        Net::OpenTimeout, Net::ReadTimeout, Net::WriteTimeout, Errno::ECONNRESET, Errno::ECONNREFUSED,
+        Errno::EPIPE, SocketError, EOFError, OpenSSL::SSL::SSLError
+      ].freeze
+      # Upper limit for a server-sent Retry-After, in seconds.
+      MAX_RETRY_AFTER = 60
       HEADERS = {
         "Linkedin-Version" => API_VERSION,
         "X-Restli-Protocol-Version" => "2.0.0",
@@ -26,7 +32,8 @@ module LinkedIn
         end
 
         def call(request, uri)
-          Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: @timeout, read_timeout: @timeout) do |http|
+          Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: @timeout,
+                                              read_timeout: @timeout, write_timeout: @timeout) do |http|
             http.request(request)
           end
         end
@@ -39,22 +46,25 @@ module LinkedIn
           @sleeper = sleeper
         end
 
-        def run(attempt = 0, &)
-          yield
-        rescue ApiError, ConnectionError => error
-          raise unless error.retryable? && attempt < @retries
-
-          pause(attempt, error.retry_after)
-          run(attempt + 1, &)
+        def run
+          (0..@retries).each do |attempt|
+            return yield
+          rescue ApiError, ConnectionError => error
+            wait_or_raise(error, attempt)
+          end
         end
 
         private
 
-        def pause(attempt, retry_after)
+        def wait_or_raise(error, attempt)
+          raise error unless error.retryable? && attempt < @retries
+
           backoff = (0.5 * (2**attempt)) + (rand * 0.1)
-          @sleeper.call([retry_after, backoff].compact.first)
+          # compact.first picks Retry-After when present (a plain `||` is not provable by MC/DC).
+          @sleeper.call([[error.retry_after, backoff].compact.first, MAX_RETRY_AFTER].min)
         end
       end
+      private_constant :Retrier, :HEADERS
 
       def initialize(access_token:, retries: 3, timeout: 30, logger: nil, sleeper: Kernel.method(:sleep),
                      transport: NetHttpTransport.new(timeout: timeout))
@@ -63,6 +73,8 @@ module LinkedIn
         @logger = logger
         @transport = transport
       end
+
+      def inspect = "#<#{self.class} base_url=#{BASE_URL}>"
 
       def get(path, params = {})
         perform(build_request(Net::HTTP::Get, path, params))
@@ -77,7 +89,9 @@ module LinkedIn
       private
 
       def build_request(klass, path, params = {})
-        uri = URI.join(BASE_URL, path)
+        raise ArgumentError, "path must start with a single /: #{path.inspect}" unless path.match?(%r{\A/(?!/)})
+
+        uri = URI("#{BASE_URL}#{path}")
         query = params.compact
         uri.query = URI.encode_www_form(query) unless query.empty?
         klass.new(uri, @headers)

@@ -127,8 +127,8 @@ class LinkedIn::MemberData::ConnectionTest < Minitest::Test
     @transport.respond(500).respond(502).respond(503)
 
     assert_raises(ServerError) { @connection.get("/x") }
-    assert_operator @sleeps[0], :>=, 0.5
-    assert_operator @sleeps[1], :>=, 1.0
+    assert_in_delta 0.5, @sleeps[0], 0.1
+    assert_in_delta 1.0, @sleeps[1], 0.1
   end
 
   def test_does_not_retry_non_retryable_errors
@@ -178,7 +178,7 @@ class LinkedIn::MemberData::ConnectionTest < Minitest::Test
     http.expect(:request, FakeTransport::Response.new("200", "{}", {}), [Net::HTTP::Get])
     starter = lambda do |host, port, **opts, &block|
       assert_equal ["api.linkedin.com", 443, true], [host, port, opts[:use_ssl]]
-      assert_equal [7, 7], [opts[:open_timeout], opts[:read_timeout]]
+      assert_equal [7, 7, 7], opts.values_at(:open_timeout, :read_timeout, :write_timeout)
       block.call(http)
     end
 
@@ -186,5 +186,37 @@ class LinkedIn::MemberData::ConnectionTest < Minitest::Test
 
     assert_equal({}, result)
     http.verify
+  end
+
+  def test_socket_error_is_retried_then_wrapped
+    @transport.fail_with(SocketError.new("dns")).fail_with(SocketError.new("dns")).fail_with(SocketError.new("dns"))
+
+    error = assert_raises(ConnectionError) { @connection.get("/x") }
+    assert_match(/SocketError: dns/, error.message)
+    assert_equal 3, @transport.requests.size
+  end
+
+  def test_rejects_paths_that_could_change_host
+    assert_raises(ArgumentError) { @connection.get("//evil/x") }
+    assert_raises(ArgumentError) { @connection.get("https://evil/x") }
+    assert_raises(ArgumentError) { @connection.post("rest/x") }
+  end
+
+  def test_rejected_path_sends_nothing
+    assert_raises(ArgumentError) { @connection.get("//evil/x") }
+
+    assert_empty @transport.requests
+  end
+
+  def test_retry_after_is_capped
+    @transport.respond(429, nil, "Retry-After" => "86400").respond(200, {})
+
+    @connection.get("/x")
+
+    assert_equal [60], @sleeps
+  end
+
+  def test_inspect_hides_access_token
+    refute_includes @connection.inspect, "tok"
   end
 end
