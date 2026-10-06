@@ -1,0 +1,3 @@
+# Reek guards library code. Test helpers are allowed to be utility functions.
+exclude_paths:
+  - test

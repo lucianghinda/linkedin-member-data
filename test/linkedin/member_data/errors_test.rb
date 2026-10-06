@@ -10,7 +10,7 @@ class LinkedIn::MemberData::ErrorsTest < Minitest::Test
   end
 
   def response(code, body = nil, headers = {})
-    self.class::FakeResponse.new(code.to_s, body, headers)
+    FakeResponse.new(code.to_s, body, headers)
   end
 
   def test_maps_known_statuses_to_classes
