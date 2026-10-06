@@ -160,10 +160,11 @@ keyword for tests.
 
 - `each` walks pages from `start=0` and yields each row of `snapshotData` from every element (docs say one element per page, but the all-domains call is not documented, so iterate all).
 - `pages` returns an `Enumerator` of `Snapshot::Page`.
-- Stop rule: stop after a page whose `paging.links` has no `rel: "next"`, or
-  when the next request raises an `ApiError` whose message includes
-  "No data found for this memberId". That error is swallowed inside `each`
-  and `pages`.
+- Stop rule: stop after a page whose `paging.links` has no `rel: "next"`,
+  when a page has no rows (such a page is not emitted; this guards against an
+  endless chain of `next` links), or when the next request raises an
+  `ApiError` whose message includes "No data found for this memberId". That
+  error is swallowed inside `each` and `pages`.
 - `Snapshot::Page` is a `Data` with `domain`, `rows`, `start`, `count`,
   `total`, `next?`, `raw`.
 
