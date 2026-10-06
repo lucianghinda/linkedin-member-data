@@ -1,0 +1,12 @@
+{
+  "elements": [
+    {
+      "memberComplianceAuthorizationKey": {
+        "developerApplication": "urn:li:developerApplication:123456",
+        "member": "urn:li:person:123ABC"
+      },
+      "regulatedAt": 1698382869085,
+      "memberComplianceScopes": ["DMA"]
+    }
+  ]
+}

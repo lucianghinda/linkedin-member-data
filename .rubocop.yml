@@ -38,3 +38,7 @@ Metrics/ParameterLists:
 # Reek rejects one-letter names, so use the same name in both tools.
 Naming/RescuedExceptionsVariableName:
   PreferredName: error
+
+# enable_changelog! returns true and keeps its bang: it changes state on the server.
+Naming/PredicateMethod:
+  AllowBangMethods: true

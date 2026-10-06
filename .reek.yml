@@ -11,5 +11,9 @@ detectors:
   LongParameterList:
     exclude:
       - "LinkedIn::MemberData::Connection#initialize"
+  # Bang names mark methods that change server state.
+  MissingSafeMethod:
+    exclude:
+      - enable_changelog!
 exclude_paths:
   - test
