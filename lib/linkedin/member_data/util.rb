@@ -17,22 +17,20 @@ module LinkedIn
       def epoch_ms(value)
         case value
         when nil, Integer then value
-        when Time, Date then from_time(value)
+        when Time, Date then (to_time(value).to_r * 1000).floor
         else raise ArgumentError, "expected Time, Date or Integer epoch milliseconds, got #{value.class}"
         end
       end
 
-      def from_time(time)
-        (at_utc(time).to_r * 1000).to_i
-      end
-
       # A Date counts as midnight UTC.
-      def at_utc(time_or_date)
-        return time_or_date unless time_or_date.is_a?(Date)
-
-        Time.utc(time_or_date.year, time_or_date.month, time_or_date.day)
+      def to_time(value)
+        case value
+        when DateTime then value.to_time
+        when Date then Time.utc(value.year, value.month, value.day)
+        else value
+        end
       end
-      private_class_method :from_time, :at_utc
+      private_class_method :to_time
     end
   end
 end

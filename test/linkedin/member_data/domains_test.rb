@@ -10,6 +10,10 @@ class LinkedIn::MemberData::DomainsTest < Minitest::Test
     assert_equal 66, Domains::ALL.size
   end
 
+  def test_all_has_no_duplicates
+    assert_equal Domains::ALL.uniq.size, Domains::ALL.size
+  end
+
   def test_all_includes_known_domains_in_upcase
     assert_includes Domains::ALL, "CONNECTIONS"
     assert_includes Domains::ALL, "PREMIUM_NOTES"
