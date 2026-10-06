@@ -3,5 +3,8 @@
 detectors:
   IrresponsibleModule:
     enabled: false
+  # API fields are nil or a value. Converting them is nil-aware by design.
+  NilCheck:
+    enabled: false
 exclude_paths:
   - test
