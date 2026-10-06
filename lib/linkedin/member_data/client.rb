@@ -10,7 +10,7 @@ module LinkedIn
 
       def initialize(access_token:, retries: 3, timeout: 30, logger: nil, connection: nil)
         ensure_token(access_token)
-        @connection = connection_for(connection, access_token:, retries:, timeout:, logger:)
+        @connection = connection_for(connection, access_token: access_token.strip, retries:, timeout:, logger:)
       end
 
       def snapshot(domain = nil)

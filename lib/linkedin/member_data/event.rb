@@ -21,6 +21,7 @@ module LinkedIn
       sibling_activities: "siblingActivities",
       parent_sibling_activities: "parentSiblingActivities"
     }.freeze
+    private_constant :EVENT_KEYS
 
     # One Member Changelog event. Times are UTC. `activity` and friends stay raw.
     Event = Data.define(

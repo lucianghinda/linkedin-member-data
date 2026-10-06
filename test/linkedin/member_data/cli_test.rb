@@ -317,4 +317,60 @@ class LinkedIn::MemberData::CLITest < Minitest::Test
     assert_equal 1, status
     assert_match(/error: token expired/, err)
   end
+
+  def test_bad_changelog_count_exits_with_usage_status
+    status, _, err = run_cli(%w[changelog --count 99], client: Client.new(access_token: "tok"))
+
+    assert_equal 2, status
+    assert_match(/count must be between/, err)
+  end
+
+  def test_snapshot_upcases_the_domain
+    client = StubClient.new
+
+    run_cli(%w[snapshot connections], client: client)
+
+    assert_equal [[:snapshot, "CONNECTIONS"]], client.calls
+  end
+
+  def test_token_is_stripped
+    *, token = run_cli(["auth"], env: { "LINKEDIN_ACCESS_TOKEN" => "tok\n" })
+
+    assert_equal "tok", token
+  end
+
+  def test_snapshot_all_with_out_exits_with_usage_status
+    status, _, err = run_cli(%w[snapshot --all --out x.json --out-dir d])
+
+    assert_equal 2, status
+    assert_match(/--all cannot be used with --out/, err)
+  end
+
+  def test_snapshot_domain_with_out_dir_exits_with_usage_status
+    status, _, err = run_cli(%w[snapshot PROFILE --out-dir d])
+
+    assert_equal 2, status
+    assert_match(/--out-dir needs --all/, err)
+  end
+
+  def test_snapshot_all_with_domain_exits_with_usage_status
+    status, _, err = run_cli(%w[snapshot --all PROFILE --out-dir d])
+
+    assert_equal 2, status
+    assert_match(/takes no DOMAIN/, err)
+  end
+
+  def test_extra_argument_exits_with_usage_status
+    status, _, err = run_cli(%w[domains extra])
+
+    assert_equal 2, status
+    assert_match(/unexpected argument: extra/, err)
+  end
+
+  def test_snapshot_with_two_domains_exits_with_usage_status
+    status, _, err = run_cli(%w[snapshot A B])
+
+    assert_equal 2, status
+    assert_match(/unexpected argument: B/, err)
+  end
 end

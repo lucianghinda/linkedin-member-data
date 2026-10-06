@@ -2,6 +2,8 @@
 
 require "optparse"
 
+require_relative "../member_data"
+
 require_relative "cli/global_options"
 require_relative "cli/support"
 require_relative "cli/since_parser"
@@ -60,7 +62,7 @@ module LinkedIn
 
       def handling_errors
         yield
-      rescue UsageError, OptionParser::ParseError, ConfigurationError => error
+      rescue UsageError, OptionParser::ParseError, ConfigurationError, ArgumentError => error
         usage_failure(error)
       rescue Error, SystemCallError => error
         failure(error)

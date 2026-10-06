@@ -41,7 +41,10 @@ module LinkedIn
         nil
       end
 
-      def self.message_from(body, status) = body.to_h.fetch("message") { "HTTP #{status}" }
+      def self.message_from(body, status)
+        message = body.to_h["message"]
+        message.is_a?(String) && !message.empty? ? message : "HTTP #{status}"
+      end
 
       def self.code_from(body) = body && (body["serviceErrorCode"] || body["code"])
 
@@ -71,7 +74,13 @@ module LinkedIn
     class RateLimited < ApiError
       attr_reader :retry_after
 
-      def self.extra_options(response) = { retry_after: response["Retry-After"]&.to_i }
+      def self.extra_options(response) = { retry_after: retry_after_from(response["Retry-After"]) }
+
+      # Only a positive number of seconds counts. HTTP-dates and 0 mean "use backoff".
+      def self.retry_after_from(value)
+        seconds = value.to_s.match?(/\A\d+\z/) ? value.to_i : 0
+        seconds.positive? ? seconds : nil
+      end
 
       def initialize(message, status:, code: nil, body: nil, retry_after: nil)
         super(message, status: status, code: code, body: body)

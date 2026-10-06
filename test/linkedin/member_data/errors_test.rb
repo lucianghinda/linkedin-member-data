@@ -94,4 +94,34 @@ class LinkedIn::MemberData::ErrorsTest < Minitest::Test
     assert_predicate error, :retryable?
     assert_nil error.retry_after
   end
+
+  def test_rate_limited_ignores_http_date_retry_after
+    error = ApiError.from_response(response(429, nil, "Retry-After" => "Wed, 21 Oct 2026 07:28:00 GMT"))
+
+    assert_nil error.retry_after
+  end
+
+  def test_rate_limited_ignores_zero_retry_after
+    error = ApiError.from_response(response(429, nil, "Retry-After" => "0"))
+
+    assert_nil error.retry_after
+  end
+
+  def test_null_message_falls_back_to_status
+    error = ApiError.from_response(response(500, '{"message":null}'))
+
+    assert_equal "HTTP 500", error.message
+  end
+
+  def test_non_string_message_falls_back_to_status
+    error = ApiError.from_response(response(500, '{"message":123}'))
+
+    assert_equal "HTTP 500", error.message
+  end
+
+  def test_empty_message_falls_back_to_status
+    error = ApiError.from_response(response(500, '{"message":""}'))
+
+    assert_equal "HTTP 500", error.message
+  end
 end

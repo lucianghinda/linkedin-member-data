@@ -13,7 +13,23 @@ module LinkedIn
           ["--out-dir DIR", "Directory for --all"]
         ].freeze
 
+        MAX_ARGUMENTS = 1
+
         private
+
+        def check_arguments
+          super
+          options[:all] ? check_all : check_one
+        end
+
+        def check_all
+          raise UsageError, "--all cannot be used with --out" if options[:out]
+          raise UsageError, "--all takes no DOMAIN" unless argv.empty?
+        end
+
+        def check_one
+          raise UsageError, "--out-dir needs --all" if options[:"out-dir"]
+        end
 
         def execute = options[:all] ? download_all : download_one
 
@@ -21,7 +37,7 @@ module LinkedIn
           domain = argv.shift
           raise UsageError, "snapshot needs a DOMAIN (or --all)" if domain.nil?
 
-          output.write(fetch(domain), options[:out])
+          output.write(fetch(domain.upcase), options[:out])
           0
         end
 

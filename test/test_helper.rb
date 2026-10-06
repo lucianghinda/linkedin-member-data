@@ -15,6 +15,7 @@ end
 # quality_gate coverage — end
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "linkedin/member_data"
+require "linkedin/member_data/cli"
 
 require "minitest/autorun"
 require "json"

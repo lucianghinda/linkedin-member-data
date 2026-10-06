@@ -10,6 +10,8 @@ module LinkedIn
       class Command
         # Option specs for OptionParser#on. Subclasses override.
         OPTIONS = [].freeze
+        # Positional arguments the command accepts.
+        MAX_ARGUMENTS = 0
 
         def initialize(context, argv)
           @context = context
@@ -19,12 +21,18 @@ module LinkedIn
 
         def run
           parser.parse!(argv, into: options)
+          check_arguments
           execute
         end
 
         private
 
         attr_reader :context, :argv, :options
+
+        def check_arguments
+          extra = argv.drop(self.class::MAX_ARGUMENTS)
+          raise UsageError, "unexpected argument: #{extra.first}" unless extra.empty?
+        end
 
         def output = context.output
 

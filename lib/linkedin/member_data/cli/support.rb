@@ -47,8 +47,8 @@ module LinkedIn
         private
 
         def access_token
-          value = @token || @env[TOKEN_ENV]
-          raise ConfigurationError, "no access token: pass --token or set #{TOKEN_ENV}" if value.to_s.empty?
+          value = (@token || @env[TOKEN_ENV]).to_s.strip
+          raise ConfigurationError, "no access token: pass --token or set #{TOKEN_ENV}" if value.empty?
 
           value
         end

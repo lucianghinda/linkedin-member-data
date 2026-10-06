@@ -233,4 +233,13 @@ class LinkedIn::MemberData::ConnectionTest < Minitest::Test
   def test_inspect_hides_access_token
     refute_includes @connection.inspect, "tok"
   end
+
+  def test_http_date_retry_after_uses_backoff
+    @transport.respond(429, nil, "Retry-After" => "Wed, 21 Oct 2026 07:28:00 GMT").respond(200, {})
+
+    @connection.get("/x")
+
+    assert_equal 1, @sleeps.size
+    assert_operator @sleeps.first, :>=, 0.5
+  end
 end

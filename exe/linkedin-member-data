@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "linkedin/member_data"
+require "linkedin/member_data/cli"
 
 exit LinkedIn::MemberData::CLI.new(ARGV).run

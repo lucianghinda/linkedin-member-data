@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
     ls.readlines("\x0", chomp: true).reject do |f|
       (f == gemspec) ||
         f.start_with?(*%w[bin/ Gemfile .gitignore test/ .github/ .rubocop.yml docs/
-                          .branchproof.json .quality_gate.yml .ruby-version Rakefile .undercover])
+                          .branchproof.json .quality_gate.yml .ruby-version Rakefile .undercover .reek.yml])
     end
   end
   spec.bindir = "exe"

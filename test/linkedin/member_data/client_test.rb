@@ -66,4 +66,10 @@ class LinkedIn::MemberData::ClientTest < Minitest::Test
     assert_equal "{}", request.body
     assert_equal "https://api.linkedin.com/rest/memberAuthorizations", uri.to_s
   end
+
+  def test_token_is_stripped_in_the_authorization_header
+    headers = Client.new(access_token: "tok\n").connection.instance_variable_get(:@headers)
+
+    assert_equal "Bearer tok", headers["Authorization"]
+  end
 end
