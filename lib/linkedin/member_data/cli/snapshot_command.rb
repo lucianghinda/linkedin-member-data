@@ -28,7 +28,7 @@ module LinkedIn
         # A failing domain is reported and the run goes on. Exit 1 at the end.
         def download_all
           FileUtils.mkdir_p(out_dir)
-          failed = Domains::ALL.reject { |domain| save(domain, out_dir) }
+          failed = Domains::ALL.reject { |domain| saved?(domain, out_dir) }
           failed.empty? ? 0 : 1
         end
 
@@ -37,19 +37,24 @@ module LinkedIn
 
         # A bad token fails every domain the same way, so Unauthorized and
         # Forbidden stop the run at once. Other errors are per domain.
-        def save(domain, dir)
-          write_domain(domain, dir)
+        def saved?(domain, dir)
+          written?(domain, dir)
         rescue Unauthorized, Forbidden
           raise
         rescue ApiError, ConnectionError => error
-          report(domain, error)
+          !reported?(domain, error)
         end
 
-        # Returns the byte count, which is truthy.
-        def write_domain(domain, dir) = output.write(fetch(domain), File.join(dir, "#{domain}.json"))
+        def written?(domain, dir)
+          output.write(fetch(domain), File.join(dir, "#{domain}.json"))
+          true
+        end
 
-        # Returns nil, so the domain counts as failed in download_all.
-        def report(domain, error) = output.error("#{domain}: #{error.message}")
+        # Reports the failure on stderr; true means the domain was not saved.
+        def reported?(domain, error)
+          output.error("#{domain}: #{error.message}")
+          true
+        end
 
         def fetch(domain)
           output.progress("Fetching #{domain}...")
