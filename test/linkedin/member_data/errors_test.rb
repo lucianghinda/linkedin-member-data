@@ -52,6 +52,13 @@ class LinkedIn::MemberData::ErrorsTest < Minitest::Test
     assert_nil error.body
   end
 
+  def test_ignores_json_body_that_is_not_an_object
+    error = ApiError.from_response(response(500, "[1, 2, 3]"))
+
+    assert_equal "HTTP 500", error.message
+    assert_nil error.body
+  end
+
   def test_rate_limited_reads_retry_after
     error = ApiError.from_response(response(429, nil, "Retry-After" => "7"))
 
