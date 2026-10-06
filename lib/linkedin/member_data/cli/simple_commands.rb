@@ -4,6 +4,7 @@ module LinkedIn
   module MemberData
     class CLI
       # Prints the gem version.
+      # @api private
       class VersionCommand < Command
         private
 
@@ -14,6 +15,7 @@ module LinkedIn
       end
 
       # Prints one snapshot domain per line. Needs no token.
+      # @api private
       class DomainsCommand < Command
         private
 
@@ -24,6 +26,7 @@ module LinkedIn
       end
 
       # Prints the authorization of the token as JSON.
+      # @api private
       class AuthCommand < Command
         private
 

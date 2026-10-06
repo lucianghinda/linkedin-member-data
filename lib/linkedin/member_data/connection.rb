@@ -9,14 +9,21 @@ module LinkedIn
   module MemberData
     # One HTTP door to api.linkedin.com. Adds headers, parses JSON,
     # maps statuses to errors and retries 429/5xx/network failures.
+    # @api private
     class Connection
+      # @return [String]
       BASE_URL = "https://api.linkedin.com"
+      # Value of the `Linkedin-Version` header.
+      # @return [String]
       API_VERSION = "202312"
+      # Network errors that become a `ConnectionError`.
+      # @return [Array<Class>]
       RETRYABLE_EXCEPTIONS = [
         Net::OpenTimeout, Net::ReadTimeout, Net::WriteTimeout, Errno::ECONNRESET, Errno::ECONNREFUSED,
         Errno::EPIPE, SocketError, EOFError, OpenSSL::SSL::SSLError
       ].freeze
       # Upper limit for a server-sent Retry-After, in seconds.
+      # @return [Integer]
       MAX_RETRY_AFTER = 60
       HEADERS = {
         "Linkedin-Version" => API_VERSION,
@@ -26,11 +33,16 @@ module LinkedIn
       }.freeze
 
       # Default transport: a real Net::HTTP call. Replaced in tests.
+      # @api private
       class NetHttpTransport
+        # @param timeout [Integer, Float] open, read and write timeout in seconds.
         def initialize(timeout:)
           @timeout = timeout
         end
 
+        # @param request [Net::HTTPRequest]
+        # @param uri [URI::HTTPS]
+        # @return [Net::HTTPResponse]
         def call(request, uri)
           Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: @timeout,
                                               read_timeout: @timeout, write_timeout: @timeout) do |http|
@@ -40,12 +52,15 @@ module LinkedIn
       end
 
       # Runs a block again on retryable errors. Waits for Retry-After, else backs off.
+      # @api private
       class Retrier
         def initialize(retries:, sleeper:)
           @retries = retries
           @sleeper = sleeper
         end
 
+        # Yields, and runs again on a retryable error. Raises after the last try.
+        # @api private
         def run
           (0..@retries).each do |attempt|
             return yield
@@ -66,6 +81,12 @@ module LinkedIn
       end
       private_constant :Retrier, :HEADERS
 
+      # @param access_token [String] OAuth token. Sent as a Bearer header.
+      # @param retries [Integer] retries on 429, 5xx and network errors. `0` turns retries off.
+      # @param timeout [Integer, Float] timeout in seconds for the default transport.
+      # @param logger [Logger, nil] gets one debug line per request.
+      # @param sleeper [#call] called with the seconds to wait between retries.
+      # @param transport [#call] takes `(request, uri)` and returns a response. Replaced in tests.
       def initialize(access_token:, retries: 3, timeout: 30, logger: nil, sleeper: Kernel.method(:sleep),
                      transport: NetHttpTransport.new(timeout: timeout))
         @headers = HEADERS.merge("Authorization" => "Bearer #{access_token}")
@@ -74,12 +95,30 @@ module LinkedIn
         @transport = transport
       end
 
+      # Hides the token.
+      # @return [String]
       def inspect = "#<#{self.class} base_url=#{BASE_URL}>"
 
+      # Sends a GET request.
+      #
+      # @param path [String] must start with a single `/`.
+      # @param params [Hash] query parameters. Nil values are dropped.
+      # @return [Hash] parsed JSON body. `{}` for an empty body.
+      # @raise [ArgumentError] when `path` does not start with a single `/`.
+      # @raise [ApiError] on a non-2xx response, or when a 2xx body is not JSON.
+      # @raise [ConnectionError] on a network failure after all retries.
       def get(path, params = {})
         perform(build_request(Net::HTTP::Get, path, params))
       end
 
+      # Sends a POST request with a JSON body.
+      #
+      # @param path [String] must start with a single `/`.
+      # @param body [Hash] sent as JSON.
+      # @return [Hash] parsed JSON body. `{}` for an empty body.
+      # @raise [ArgumentError] when `path` does not start with a single `/`.
+      # @raise [ApiError] on a non-2xx response, or when a 2xx body is not JSON.
+      # @raise [ConnectionError] on a network failure after all retries.
       def post(path, body = {})
         request = build_request(Net::HTTP::Post, path)
         request.body = JSON.generate(body)

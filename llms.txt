@@ -1,0 +1,59 @@
+# Module LinkedIn::MemberData <a id="module-LinkedIn-MemberData"></a>
+
+|  |  |
+| --- | --- |
+| **Defined in** | lib/linkedin/member_data/version.rb, lib/linkedin/member_data/cli.rb, lib/linkedin/member_data/util.rb, lib/linkedin/member_data/event.rb, lib/linkedin/member_data/client.rb, lib/linkedin/member_data/errors.rb, lib/linkedin/member_data/domains.rb, lib/linkedin/member_data/snapshot.rb, lib/linkedin/member_data/changelog.rb, lib/linkedin/member_data/connection.rb, lib/linkedin/member_data/cli/command.rb, lib/linkedin/member_data/cli/support.rb, lib/linkedin/member_data/authorization.rb, lib/linkedin/member_data/snapshot/page.rb, lib/linkedin/member_data/changelog/page.rb, lib/linkedin/member_data/cli/since_parser.rb, lib/linkedin/member_data/cli/global_options.rb, lib/linkedin/member_data/cli/simple_commands.rb, lib/linkedin/member_data/cli/snapshot_command.rb, lib/linkedin/member_data/cli/changelog_command.rb |
+
+Ruby client and CLI for the LinkedIn Member Data Portability (Member) API.
+Start with `Client`.
+
+**@example**
+```ruby
+client = LinkedIn::MemberData::Client.new(access_token: ENV["LINKEDIN_ACCESS_TOKEN"])
+client.snapshot(:connections).each { |row| puts row["First Name"] }
+```
+
+## Constants
+### `EVENT_KEYS` <a id="constant-EVENT_KEYS"></a> <a id="EVENT_KEYS-constant"></a>
+Data member name => JSON key. Time fields are handled separately.
+- **@api** private
+
+### `VERSION` <a id="constant-VERSION"></a> <a id="VERSION-constant"></a>
+Gem version.
+- **@return** [String]
+
+# Documentation
+
+- [MemberData/ApiError.md](doc/LinkedIn/MemberData/ApiError.md)
+- [MemberData/Authorization.md](doc/LinkedIn/MemberData/Authorization.md)
+- [MemberData/CLI/AuthCommand.md](doc/LinkedIn/MemberData/CLI/AuthCommand.md)
+- [MemberData/CLI/ChangelogCommand.md](doc/LinkedIn/MemberData/CLI/ChangelogCommand.md)
+- [MemberData/CLI/Command.md](doc/LinkedIn/MemberData/CLI/Command.md)
+- [MemberData/CLI/Context.md](doc/LinkedIn/MemberData/CLI/Context.md)
+- [MemberData/CLI/DomainsCommand.md](doc/LinkedIn/MemberData/CLI/DomainsCommand.md)
+- [MemberData/CLI/GlobalOptions.md](doc/LinkedIn/MemberData/CLI/GlobalOptions.md)
+- [MemberData/CLI/Output.md](doc/LinkedIn/MemberData/CLI/Output.md)
+- [MemberData/CLI/SinceParser.md](doc/LinkedIn/MemberData/CLI/SinceParser.md)
+- [MemberData/CLI/SnapshotCommand.md](doc/LinkedIn/MemberData/CLI/SnapshotCommand.md)
+- [MemberData/CLI/UsageError.md](doc/LinkedIn/MemberData/CLI/UsageError.md)
+- [MemberData/CLI/VersionCommand.md](doc/LinkedIn/MemberData/CLI/VersionCommand.md)
+- [MemberData/CLI.md](doc/LinkedIn/MemberData/CLI.md)
+- [MemberData/Changelog/Page.md](doc/LinkedIn/MemberData/Changelog/Page.md)
+- [MemberData/Changelog.md](doc/LinkedIn/MemberData/Changelog.md)
+- [MemberData/Client.md](doc/LinkedIn/MemberData/Client.md)
+- [MemberData/ConfigurationError.md](doc/LinkedIn/MemberData/ConfigurationError.md)
+- [MemberData/Connection/NetHttpTransport.md](doc/LinkedIn/MemberData/Connection/NetHttpTransport.md)
+- [MemberData/Connection.md](doc/LinkedIn/MemberData/Connection.md)
+- [MemberData/ConnectionError.md](doc/LinkedIn/MemberData/ConnectionError.md)
+- [MemberData/Domains.md](doc/LinkedIn/MemberData/Domains.md)
+- [MemberData/Error.md](doc/LinkedIn/MemberData/Error.md)
+- [MemberData/Event.md](doc/LinkedIn/MemberData/Event.md)
+- [MemberData/Forbidden.md](doc/LinkedIn/MemberData/Forbidden.md)
+- [MemberData/NotFound.md](doc/LinkedIn/MemberData/NotFound.md)
+- [MemberData/RateLimited.md](doc/LinkedIn/MemberData/RateLimited.md)
+- [MemberData/ServerError.md](doc/LinkedIn/MemberData/ServerError.md)
+- [MemberData/Snapshot/Page.md](doc/LinkedIn/MemberData/Snapshot/Page.md)
+- [MemberData/Snapshot.md](doc/LinkedIn/MemberData/Snapshot.md)
+- [MemberData/Unauthorized.md](doc/LinkedIn/MemberData/Unauthorized.md)
+- [MemberData/Util.md](doc/LinkedIn/MemberData/Util.md)
+- [MemberData/VersionError.md](doc/LinkedIn/MemberData/VersionError.md)

@@ -6,6 +6,8 @@ module LinkedIn
     # https://learn.microsoft.com/en-us/linkedin/dma/member-data-portability/shared/snapshot-domain
     # The API is case sensitive. Strings are sent as given; symbols are upcased.
     module Domains
+      # Names of all snapshot domains. Pass one to `Client#snapshot`.
+      # @return [Array<String>]
       ALL = %w[
         ADS_CLICKED MEMBER_FOLLOWING LOGIN RICH_MEDIA SEARCHES INFERENCE_TAKEOUT
         ALL_COMMENTS CONTACTS EVENTS RECEIPTS AD_TARGETING REGISTRATION REVIEWS
@@ -24,6 +26,11 @@ module LinkedIn
         PREMIUM_NOTES
       ].freeze
 
+      # Turns a domain argument into the name sent to the API.
+      #
+      # @param domain [Symbol, String, nil] a Symbol is upcased. A String is returned as given. `nil` stays `nil`.
+      # @return [String, nil]
+      # @raise [ArgumentError] when `domain` is not a Symbol, a String or nil.
       def self.normalize(domain)
         case domain
         when Symbol then domain.to_s.upcase

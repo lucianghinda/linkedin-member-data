@@ -6,13 +6,16 @@ module LinkedIn
   module MemberData
     class CLI
       # One domain to a file or stdout, or every domain into a directory.
+      # @api private
       class SnapshotCommand < Command
+        # @return [Array<Array>]
         OPTIONS = [
           ["--all", "Download every domain"],
           ["--out FILE", "Write to FILE instead of stdout"],
           ["--out-dir DIR", "Directory for --all"]
         ].freeze
 
+        # @return [Integer]
         MAX_ARGUMENTS = 1
 
         private

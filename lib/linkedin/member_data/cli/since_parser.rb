@@ -8,7 +8,11 @@ module LinkedIn
   module MemberData
     class CLI
       # Reads --since: an ISO datetime, or an ISO date (midnight UTC).
+      # @api private
       class SinceParser
+        # @param value [String] ISO 8601 datetime or date.
+        # @return [Time]
+        # @raise [UsageError] when `value` is neither.
         def self.call(value)
           Time.iso8601(value)
         rescue ArgumentError

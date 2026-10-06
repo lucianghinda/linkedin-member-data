@@ -16,7 +16,10 @@ module LinkedIn
   module MemberData
     # Command line entry point. Data goes to stdout or files, progress and
     # errors go to stderr. Exit codes: 0 ok, 1 API error, 2 usage error.
+    # @api private
     class CLI
+      # Command name => command class.
+      # @return [Hash{String => Class}]
       COMMANDS = {
         "snapshot" => SnapshotCommand,
         "changelog" => ChangelogCommand,
@@ -25,8 +28,12 @@ module LinkedIn
         "version" => VersionCommand
       }.freeze
 
+      # Builds a `Client` from a token.
+      # @return [Proc]
       DEFAULT_CLIENT_FACTORY = ->(token) { Client.new(access_token: token) }
 
+      # Help text.
+      # @return [String]
       USAGE = <<~TEXT
         Usage: linkedin-member-data COMMAND [options]
 
@@ -44,6 +51,11 @@ module LinkedIn
           -h, --help      Show this help
       TEXT
 
+      # @param argv [Array<String>] command line arguments. Not changed.
+      # @param stdout [IO] where data goes.
+      # @param stderr [IO] where progress and errors go.
+      # @param env [Hash, #[]] environment, read for `LINKEDIN_ACCESS_TOKEN`.
+      # @param client_factory [#call] takes a token and returns a `Client`.
       def initialize(argv, stdout: $stdout, stderr: $stderr, env: ENV, client_factory: DEFAULT_CLIENT_FACTORY)
         @argv = argv.dup
         @output = Output.new(stdout, stderr)
@@ -51,6 +63,8 @@ module LinkedIn
         @client_factory = client_factory
       end
 
+      # Runs the command.
+      # @return [Integer] exit code: 0 ok, 1 API, network or file error, 2 usage error.
       def run
         handling_errors { start }
       end
