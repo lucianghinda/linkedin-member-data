@@ -13,6 +13,7 @@ module LinkedIn
       resource_name: "resourceName",
       resource_id: "resourceId",
       resource_uri: "resourceUri",
+      # Shadows Object#method on purpose; it is the API field name.
       method: "method",
       method_name: "methodName",
       activity: "activity",
