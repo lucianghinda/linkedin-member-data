@@ -158,7 +158,7 @@ linkedin-member-data auth
 linkedin-member-data version
 ```
 
-Use `-h` or `--help` to print usage. The DOMAIN argument is upcased, so `snapshot connections` works. The token comes from `--token TOKEN` (before the command) or `LINKEDIN_ACCESS_TOKEN`. Data goes to stdout or `--out FILE`. Progress and errors go to stderr. `--since` takes an ISO date (midnight UTC) or an ISO datetime.
+Use `-h` or `--help` to print usage. The DOMAIN argument is upcased, so `snapshot connections` works. The token comes from `--token TOKEN` (before or after the command) or `LINKEDIN_ACCESS_TOKEN`. Data goes to stdout or `--out FILE`. Progress and errors go to stderr. `--since` takes an ISO date (midnight UTC) or an ISO datetime.
 
 `snapshot --all` writes one `<DOMAIN>.json` per domain. Without `--out-dir DIR` it is a usage error (exit 2). A failing domain is reported and the run continues. The exit code is 1 at the end. Unauthorized and Forbidden stop the run, because a bad token fails every domain.
 
