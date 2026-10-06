@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-# Specify your gem's dependencies in linkedin-members-apis.gemspec
+# Specify your gem's dependencies in linkedin-member-data.gemspec
 gemspec
 
 gem "irb"
