@@ -8,6 +8,7 @@ require_relative "member_data/connection"
 require_relative "member_data/authorization"
 require_relative "member_data/event"
 require_relative "member_data/snapshot"
+require_relative "member_data/changelog"
 require_relative "member_data/client"
 
 module LinkedIn

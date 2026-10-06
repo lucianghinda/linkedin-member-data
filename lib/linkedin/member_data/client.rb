@@ -17,6 +17,10 @@ module LinkedIn
         Snapshot.new(connection, Domains.normalize(domain))
       end
 
+      def changelog(since: nil, count: Changelog::DEFAULT_COUNT)
+        Changelog.new(connection, since: since, count: count)
+      end
+
       def authorization
         element = member_authorizations.first
         Authorization.from_api(element) unless element.nil?
