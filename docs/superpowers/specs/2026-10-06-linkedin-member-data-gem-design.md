@@ -176,9 +176,9 @@ keyword for tests.
   `Date` -> midnight UTC, `Integer` -> as-is, `nil` -> omitted.
 - `count` outside 1..50 raises `ArgumentError` before any request.
 - `each` fetches a page, yields events, then sets `startTime` to the last
-  event's `processedAt`. The first event of a page whose `id` equals the last
-  yielded `id` is skipped (cursor overlap). Stops when a page has no new
-  events.
+  event's `processedAt`. Events whose `id` appeared on the previous page are
+  skipped (cursor overlap; several events can share a `processedAt`). Stops
+  when a page has no new events.
 - `pages` returns an `Enumerator` of `Changelog::Page` with `events`,
   `next_start_time`, `raw`.
 
