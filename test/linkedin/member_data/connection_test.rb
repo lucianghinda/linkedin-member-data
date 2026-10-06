@@ -173,19 +173,33 @@ class LinkedIn::MemberData::ConnectionTest < Minitest::Test
     assert_equal ["GET https://api.linkedin.com/rest/memberAuthorizations?q=memberAndApplication -> 200"], lines
   end
 
-  def test_default_transport_uses_net_http_with_timeout
-    http = Minitest::Mock.new
-    http.expect(:request, FakeTransport::Response.new("200", "{}", {}), [Net::HTTP::Get])
-    starter = lambda do |host, port, **opts, &block|
-      assert_equal ["api.linkedin.com", 443, true], [host, port, opts[:use_ssl]]
-      assert_equal [7, 7, 7], opts.values_at(:open_timeout, :read_timeout, :write_timeout)
-      block.call(http)
+  # Stands in for a Net::HTTP session: records requests, answers 200 {}.
+  FakeHttp = Struct.new(:requests) do
+    def request(req)
+      requests << req
+      FakeTransport::Response.new("200", "{}", {})
     end
+  end
 
-    result = Net::HTTP.stub(:start, starter) { Connection.new(access_token: "tok", timeout: 7).get("/x") }
+  def test_default_transport_uses_net_http_with_timeout
+    http = FakeHttp.new([])
+    seen = {}
+    starter = ->(host, port, **opts, &block) { seen.merge!(host: host, port: port, **opts) && block.call(http) }
+
+    result = with_net_http_start(starter) { Connection.new(access_token: "tok", timeout: 7).get("/x") }
 
     assert_equal({}, result)
-    http.verify
+    assert_equal ["api.linkedin.com", 443, true, 7, 7, 7],
+                 seen.values_at(:host, :port, :use_ssl, :open_timeout, :read_timeout, :write_timeout)
+    assert_kind_of Net::HTTP::Get, http.requests.first
+  end
+
+  def with_net_http_start(starter)
+    original = Net::HTTP.method(:start)
+    Net::HTTP.define_singleton_method(:start) { |*args, **opts, &block| starter.call(*args, **opts, &block) }
+    yield
+  ensure
+    Net::HTTP.define_singleton_method(:start, original)
   end
 
   def test_socket_error_is_retried_then_wrapped

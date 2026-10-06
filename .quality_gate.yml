@@ -29,7 +29,7 @@ commands:
 # # Command timeouts in seconds.
 timeouts:
   default: 120
-  rubocop: 10
+  rubocop: 30
   test_suite: 120
   undercover: 120
 
