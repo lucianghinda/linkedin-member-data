@@ -16,6 +16,7 @@ module LinkedIn
       Page = Data.define(:domain, :rows, :start, :count, :total, :has_next, :raw) do
         def self.from_api(raw)
           elements = raw.fetch("elements", [])
+          # domain comes from the first element; an all-domains call may return several
           new(domain: elements.dig(0, "snapshotDomain"), rows: rows_from(elements), raw: raw,
               **paging_from(raw.fetch("paging", {})))
         end
@@ -58,15 +59,17 @@ module LinkedIn
       private
 
       def each_page(yielder)
-        start = 0
-        start += 1 while emit_with_next?(yielder, start)
+        (0..).each do |start|
+          page = usable_page(start)
+          yielder << page unless page.nil?
+          break unless page&.next?
+        end
       end
 
-      # Returns true when another page may follow.
-      def emit_with_next?(yielder, start)
-        page = page_or_nil(start)
-        yielder << page unless page.nil?
-        page&.next?
+      # nil ends the walk. An empty page counts as the end even with a next
+      # link, because `next` links can appear on the last page.
+      def usable_page(start)
+        page_or_nil(start)&.then { |page| page unless page.rows.empty? }
       end
 
       def page_or_nil(start)

@@ -54,7 +54,7 @@ class LinkedIn::MemberData::SnapshotTest < Minitest::Test
 
   def test_walks_pages_until_no_data_error
     @transport.respond(200, fixture("snapshot_page_with_next"))
-              .respond(200, fixture("snapshot_last_page"))
+              .respond(200, fixture("snapshot_second_page"))
               .respond(404, fixture("snapshot_no_data"))
 
     names = @client.snapshot(:connections).map { |row| row["First Name"] }
@@ -133,5 +133,28 @@ class LinkedIn::MemberData::SnapshotTest < Minitest::Test
 
   def test_each_without_block_returns_enumerator
     assert_kind_of Enumerator, @client.snapshot(:profile).each
+  end
+
+  def test_empty_page_with_next_link_stops_walking
+    body = { "paging" => { "links" => [{ "rel" => "next" }] }, "elements" => [] }
+    @transport.respond(200, body)
+
+    assert_empty @client.snapshot(:connections).to_a
+    assert_equal 1, @transport.requests.size
+  end
+
+  def test_iterating_twice_repeats_the_requests
+    2.times { @transport.respond(200, fixture("snapshot_profile")) }
+    snapshot = @client.snapshot(:profile)
+
+    assert_equal snapshot.to_a, snapshot.to_a
+    assert_equal 2, @transport.requests.size
+  end
+
+  def test_each_with_block_returns_the_snapshot
+    @transport.respond(200, fixture("snapshot_profile"))
+    snapshot = @client.snapshot(:profile)
+
+    assert_same(snapshot, snapshot.each { |_row| nil })
   end
 end
