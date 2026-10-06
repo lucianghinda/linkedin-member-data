@@ -7,6 +7,8 @@ gemspec
 gem "irb"
 gem "minitest", ">= 5.25.5", "< 7"
 gem "rake", "~> 13.0"
+gem "yard", "~> 0.9", require: false
+gem "yard-markdown", "~> 0.9", require: false
 
 group :development, :test do
   gem "quality_gate", "~> 0.3", require: false

@@ -3,12 +3,24 @@
 require "bundler/gem_tasks"
 require "minitest/test_task"
 require "rubocop/rake_task"
+require "fileutils"
+require "rbconfig"
+require "yard"
 
 Minitest::TestTask.create do |t|
   t.test_globs = ["test/**/*_test.rb"]
 end
 
 RuboCop::RakeTask.new
+
+YARD::Rake::YardocTask.new do |task|
+  task.before = -> { FileUtils.rm_rf(File.join(__dir__, "doc")) }
+end
+
+desc "Generate Markdown API documentation and the LLM index"
+task docs: :yard do
+  sh RbConfig.ruby, File.join(__dir__, "bin/generate_llm.rb")
+end
 
 begin
   require "branchproof/rake_task"
