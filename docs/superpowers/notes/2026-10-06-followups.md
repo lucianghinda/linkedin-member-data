@@ -19,3 +19,8 @@ Items raised by reviewers that were deliberately deferred. Revisit before 0.1.0.
   member ids ever appear in queries.
 - Connection: no `Accept: application/json` header is sent. Add if LinkedIn
   ever starts content negotiation.
+- CLI: `snapshot --help` (per-command help) is not handled; it exits 2 as an
+  unknown option. Add per-command banners and `-h` if users ask.
+- CLI: leftover positional arguments are ignored (`domains extra`,
+  `snapshot A B`). Consider raising a usage error.
+- CLI: `--all` with `--out`, or DOMAIN with `--out-dir`, is silently ignored.
