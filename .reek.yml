@@ -6,5 +6,10 @@ detectors:
   # API fields are nil or a value. Converting them is nil-aware by design.
   NilCheck:
     enabled: false
+  # Connection options are keyword arguments, which document themselves.
+  # Same rule as Metrics/ParameterLists in .rubocop.yml.
+  LongParameterList:
+    exclude:
+      - "LinkedIn::MemberData::Connection#initialize"
 exclude_paths:
   - test

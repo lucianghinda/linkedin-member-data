@@ -34,3 +34,7 @@ Metrics/ClassLength:
 # Keyword arguments document themselves, so they do not count.
 Metrics/ParameterLists:
   CountKeywordArgs: false
+
+# Reek rejects one-letter names, so use the same name in both tools.
+Naming/RescuedExceptionsVariableName:
+  PreferredName: error

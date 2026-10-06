@@ -10,7 +10,11 @@ module LinkedIn
     class ConfigurationError < Error; end
 
     # Network failure after all retries (timeouts, reset connections).
-    class ConnectionError < Error; end
+    class ConnectionError < Error
+      def retryable? = true
+
+      def retry_after = nil
+    end
 
     # Any non-2xx HTTP response.
     class ApiError < Error

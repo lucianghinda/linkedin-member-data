@@ -87,4 +87,11 @@ class LinkedIn::MemberData::ErrorsTest < Minitest::Test
     assert_operator ApiError, :<, Error
     assert_operator RateLimited, :<, ApiError
   end
+
+  def test_connection_error_is_retryable_without_retry_after
+    error = ConnectionError.new("boom")
+
+    assert_predicate error, :retryable?
+    assert_nil error.retry_after
+  end
 end
