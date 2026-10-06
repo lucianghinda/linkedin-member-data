@@ -1,5 +1,7 @@
 inherit_gem: { quality_gate: config/ruby.yml }
 
+inherit_mode: { merge: [Exclude] }
+
 AllCops:
   TargetRubyVersion: 3.2
   NewCops: enable
@@ -18,6 +20,17 @@ Style/ClassAndModuleChildren:
   Exclude:
     - "test/**/*"
 
-# Public API is documented in the README.
-Style/Documentation:
-  Enabled: false
+# Size limits apply to library code. Tests are long by nature.
+Metrics/MethodLength:
+  Exclude:
+    - "test/**/*"
+Metrics/AbcSize:
+  Exclude:
+    - "test/**/*"
+Metrics/ClassLength:
+  Exclude:
+    - "test/**/*"
+
+# Keyword arguments document themselves, so they do not count.
+Metrics/ParameterLists:
+  CountKeywordArgs: false

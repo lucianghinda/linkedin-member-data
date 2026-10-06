@@ -21,6 +21,8 @@ begin
     t.minimum = ["mcdc=90"]
   end
 rescue LoadError
+  raise if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("4.0")
+
   desc "Branchproof needs Ruby 4.0+"
   task(:branchproof) { warn "branchproof not installed on this Ruby" }
 end
