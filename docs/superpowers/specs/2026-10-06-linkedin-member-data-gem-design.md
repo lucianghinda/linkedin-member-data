@@ -181,6 +181,10 @@ keyword for tests.
   when a page has no new events.
 - `pages` returns an `Enumerator` of `Changelog::Page` with `events`,
   `next_start_time`, `raw`.
+- The walk also stops after a page whose last event has no `processedAt`,
+  since the cursor cannot advance. Known limit: when more than `count` events
+  share one `processedAt`, the events beyond that page are not reachable
+  through the cursor; raise `count` (max 50) to reduce the chance.
 
 ### Event
 
