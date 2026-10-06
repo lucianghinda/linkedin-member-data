@@ -1,6 +1,11 @@
+inherit_gem: { quality_gate: config/ruby.yml }
+
 AllCops:
   TargetRubyVersion: 3.2
   NewCops: enable
+  Exclude:
+    - "vendor/**/*"
+    - "docs/**/*"
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes
