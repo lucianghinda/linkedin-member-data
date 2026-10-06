@@ -1,0 +1,24 @@
+{
+  "id": 978988628,
+  "activityId": "c86c3c71-7844-4ed1-b1fc-66deeac14192",
+  "activityStatus": "SUCCESS",
+  "capturedAt": 1574449632331,
+  "processedAt": 1574449662997,
+  "configVersion": 1,
+  "owner": "urn:li:person:2qXA98-mVk",
+  "actor": "urn:li:person:kAq_1ptj-v",
+  "resourceName": "messages",
+  "resourceId": "0-UzY2MDM3MjAzODc4OTk1OTI3MDRfNTAw",
+  "resourceUri": "/messages/0-UzY2MDM3MjAzODc4OTk1OTI3MDRfNTAw",
+  "method": "CREATE",
+  "activity": {
+    "author": "urn:li:person:kAq_1ptj-v",
+    "content": { "format": "TEXT", "fallback": "Hello back" }
+  },
+  "processedActivity": {
+    "author": "urn:li:person:kAq_1ptj-v",
+    "author~": { "firstName": "Tom" }
+  },
+  "siblingActivities": [],
+  "parentSiblingActivities": []
+}
