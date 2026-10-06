@@ -41,12 +41,13 @@ class LinkedIn::MemberData::CLITest < Minitest::Test
   def run_cli(argv, client: StubClient.new, env: { "LINKEDIN_ACCESS_TOKEN" => "tok" })
     stdout = StringIO.new
     stderr = StringIO.new
+    token_seen = nil
     factory = lambda do |token|
-      @token_seen = token
+      token_seen = token
       client
     end
     status = CLI.new(argv, stdout: stdout, stderr: stderr, env: env, client_factory: factory).run
-    [status, stdout.string, stderr.string]
+    [status, stdout.string, stderr.string, token_seen]
   end
 
   def test_no_command_prints_usage_and_exits_with_usage_status
@@ -111,15 +112,15 @@ class LinkedIn::MemberData::CLITest < Minitest::Test
   end
 
   def test_env_token_is_used
-    run_cli(["auth"])
+    *, token = run_cli(["auth"])
 
-    assert_equal "tok", @token_seen
+    assert_equal "tok", token
   end
 
   def test_token_flag_wins_over_env
-    run_cli(["--token", "flag-tok", "auth"], client: StubClient.new(authorization: nil))
+    *, token = run_cli(["--token", "flag-tok", "auth"], client: StubClient.new(authorization: nil))
 
-    assert_equal "flag-tok", @token_seen
+    assert_equal "flag-tok", token
   end
 
   def test_snapshot_writes_rows_to_stdout
@@ -150,6 +151,37 @@ class LinkedIn::MemberData::CLITest < Minitest::Test
       assert_equal 0, status
       assert_empty out
       assert_equal [{ "First Name" => "Tom" }], JSON.parse(File.read(path))
+    end
+  end
+
+  def test_file_output_has_same_bytes_as_stdout
+    client = StubClient.new(snapshots: { "PROFILE" => [{ "First Name" => "Tom" }] })
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, "profile.json")
+      _, out, = run_cli(%w[snapshot PROFILE], client: client)
+      run_cli(["snapshot", "PROFILE", "--out", path], client: client)
+
+      assert_equal out, File.read(path)
+    end
+  end
+
+  def test_unwritable_out_path_exits_with_failure_status
+    Dir.mktmpdir do |dir|
+      status, _, err = run_cli(["snapshot", "PROFILE", "--out", File.join(dir, "missing", "x.json")])
+
+      assert_equal 1, status
+      assert_match(/error: No such file or directory/, err)
+    end
+  end
+
+  def test_snapshot_all_stops_at_once_on_unauthorized
+    client = StubClient.new(failures: { Domains::ALL.first => Unauthorized.new("bad token", status: 401) })
+    Dir.mktmpdir do |dir|
+      status, _, err = run_cli(["snapshot", "--all", "--out-dir", dir], client: client)
+
+      assert_equal 1, status
+      assert_equal 1, client.calls.size
+      assert_match(/error: bad token/, err)
     end
   end
 
@@ -188,7 +220,7 @@ class LinkedIn::MemberData::CLITest < Minitest::Test
   def failing_inbox_client
     StubClient.new(
       snapshots: { "PROFILE" => [{ "a" => 1 }] },
-      failures: { "INBOX" => Forbidden.new("no inbox", status: 403) }
+      failures: { "INBOX" => NotFound.new("no inbox", status: 404) }
     )
   end
 

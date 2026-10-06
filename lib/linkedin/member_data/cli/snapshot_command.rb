@@ -32,15 +32,24 @@ module LinkedIn
           failed.empty? ? 0 : 1
         end
 
+        # The key comes from OptionParser's long option name (--out-dir).
         def out_dir = options.fetch(:"out-dir") { raise UsageError, "--all needs --out-dir DIR" }
 
+        # A bad token fails every domain the same way, so Unauthorized and
+        # Forbidden stop the run at once. Other errors are per domain.
         def save(domain, dir)
-          output.write(fetch(domain), File.join(dir, "#{domain}.json"))
-          true
+          write_domain(domain, dir)
+        rescue Unauthorized, Forbidden
+          raise
         rescue ApiError, ConnectionError => error
-          output.error("#{domain}: #{error.message}")
-          false
+          report(domain, error)
         end
+
+        # Returns the byte count, which is truthy.
+        def write_domain(domain, dir) = output.write(fetch(domain), File.join(dir, "#{domain}.json"))
+
+        # Returns nil, so the domain counts as failed in download_all.
+        def report(domain, error) = output.error("#{domain}: #{error.message}")
 
         def fetch(domain)
           output.progress("Fetching #{domain}...")

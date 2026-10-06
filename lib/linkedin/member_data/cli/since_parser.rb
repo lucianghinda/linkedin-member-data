@@ -24,6 +24,7 @@ module LinkedIn
 
         private_class_method :from_date
 
+        # parser.on(..., SinceParser, ...) in ChangelogCommand relies on this.
         OptionParser.accept(self) { |value| call(value) }
       end
     end

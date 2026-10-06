@@ -1,8 +1,33 @@
 # frozen_string_literal: true
 
+require "json"
+
 module LinkedIn
   module MemberData
     class CLI
+      # Bad command line: unknown command, missing argument, bad value.
+      class UsageError < StandardError; end
+
+      # Data goes to a file or stdout. Progress and errors go to stderr.
+      class Output
+        def initialize(stdout, stderr)
+          @stdout = stdout
+          @stderr = stderr
+        end
+
+        # Files get the same bytes as stdout, including the final newline.
+        def write(data, path = nil)
+          json = JSON.pretty_generate(data)
+          path ? File.write(path, "#{json}\n") : @stdout.puts(json)
+        end
+
+        def line(text) = @stdout.puts(text)
+
+        def error(text) = @stderr.puts(text)
+
+        alias progress error
+      end
+
       # What every command needs: the output and a lazy client.
       # The token is only looked up when a command asks for the client.
       class Context

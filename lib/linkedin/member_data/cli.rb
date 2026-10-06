@@ -2,10 +2,8 @@
 
 require "optparse"
 
-require_relative "cli/usage_error"
 require_relative "cli/global_options"
-require_relative "cli/output"
-require_relative "cli/context"
+require_relative "cli/support"
 require_relative "cli/since_parser"
 require_relative "cli/command"
 require_relative "cli/simple_commands"
@@ -64,7 +62,7 @@ module LinkedIn
         yield
       rescue UsageError, OptionParser::ParseError, ConfigurationError => error
         usage_failure(error)
-      rescue Error => error
+      rescue Error, SystemCallError => error
         failure(error)
       end
 
