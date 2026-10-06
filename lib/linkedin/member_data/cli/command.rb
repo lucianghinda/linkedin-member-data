@@ -21,6 +21,7 @@ module LinkedIn
 
         def run
           parser.parse!(argv, into: options)
+          context.use_token(options[:token]) if options.key?(:token)
           check_arguments
           execute
         end
@@ -40,6 +41,7 @@ module LinkedIn
 
         def parser
           parser = OptionParser.new("Usage: linkedin-member-data COMMAND [options]")
+          parser.on("--token TOKEN")
           self.class::OPTIONS.each { |spec| parser.on(*spec) }
           parser
         end

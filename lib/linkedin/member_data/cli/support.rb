@@ -44,6 +44,10 @@ module LinkedIn
 
         def client = @client ||= @client_factory.call(access_token)
 
+        def use_token(value)
+          @token = value
+        end
+
         private
 
         def access_token

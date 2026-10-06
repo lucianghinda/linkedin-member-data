@@ -373,4 +373,22 @@ class LinkedIn::MemberData::CLITest < Minitest::Test
     assert_equal 2, status
     assert_match(/unexpected argument: B/, err)
   end
+
+  def test_token_after_the_command_is_used
+    *, token = run_cli(%w[auth --token after])
+
+    assert_equal "after", token
+  end
+
+  def test_token_after_the_command_wins_over_token_before
+    *, token = run_cli(%w[--token before auth --token after])
+
+    assert_equal "after", token
+  end
+
+  def test_token_before_the_command_still_works
+    *, token = run_cli(%w[--token before auth])
+
+    assert_equal "before", token
+  end
 end

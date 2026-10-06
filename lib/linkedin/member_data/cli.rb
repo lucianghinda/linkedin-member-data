@@ -28,7 +28,7 @@ module LinkedIn
       DEFAULT_CLIENT_FACTORY = ->(token) { Client.new(access_token: token) }
 
       USAGE = <<~TEXT
-        Usage: linkedin-member-data [--token TOKEN] COMMAND [options]
+        Usage: linkedin-member-data COMMAND [options]
 
         Commands:
           snapshot DOMAIN [--out FILE]        Download one snapshot domain as a JSON array
@@ -39,7 +39,9 @@ module LinkedIn
           auth                                Show authorization status as JSON
           version                             Print the gem version
 
-        The token comes from --token or the LINKEDIN_ACCESS_TOKEN environment variable.
+        Options:
+          --token TOKEN   Access token (or set LINKEDIN_ACCESS_TOKEN). Before or after the command.
+          -h, --help      Show this help
       TEXT
 
       def initialize(argv, stdout: $stdout, stderr: $stderr, env: ENV, client_factory: DEFAULT_CLIENT_FACTORY)
