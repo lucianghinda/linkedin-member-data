@@ -45,6 +45,12 @@ class LinkedIn::MemberData::ErrorsTest < Minitest::Test
     assert_equal "INVALID", error.code
   end
 
+  def test_code_is_nil_when_body_has_no_code_keys
+    error = ApiError.from_response(response(400, '{"message":"bad"}'))
+
+    assert_nil error.code
+  end
+
   def test_ignores_non_json_body
     error = ApiError.from_response(response(502, "<html>bad gateway</html>"))
 
