@@ -107,7 +107,8 @@ Gem::Specification.new do |spec|
   spec.files = IO.popen(%w[git ls-files -z], chdir: __dir__, err: IO::NULL) do |ls|
     ls.readlines("\x0", chomp: true).reject do |f|
       (f == gemspec) ||
-        f.start_with?(*%w[bin/ Gemfile .gitignore test/ .github/ .rubocop.yml docs/ .branchproof.json .quality_gate.yml .ruby-version])
+        f.start_with?(*%w[bin/ Gemfile .gitignore test/ .github/ .rubocop.yml docs/
+                             .branchproof.json .quality_gate.yml .ruby-version])
     end
   end
   spec.bindir = "exe"
@@ -190,6 +191,15 @@ Style/StringLiterals:
 
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: double_quotes
+
+# Tests use compact class names like LinkedIn::MemberData::FooTest.
+Style/ClassAndModuleChildren:
+  Exclude:
+    - "test/**/*"
+
+# Public API is documented in the README.
+Style/Documentation:
+  Enabled: false
 ```
 
 - [ ] **Step 5: Run the test**
@@ -260,6 +270,15 @@ Style/StringLiterals:
 
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: double_quotes
+
+# Tests use compact class names like LinkedIn::MemberData::FooTest.
+Style/ClassAndModuleChildren:
+  Exclude:
+    - "test/**/*"
+
+# Public API is documented in the README.
+Style/Documentation:
+  Enabled: false
 ```
 
 - [ ] **Step 4: Write .branchproof.json**
