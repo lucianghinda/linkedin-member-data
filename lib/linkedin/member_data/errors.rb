@@ -20,8 +20,8 @@ module LinkedIn
         status = response.code.to_i
         body = parse_body(response.body)
         klass = class_for(status)
-        klass.new(message_from(body), status: status, code: code_from(body), body: body,
-                                      **klass.extra_options(response))
+        klass.new(message_from(body, status), status: status, code: code_from(body), body: body,
+                                              **klass.extra_options(response))
       end
 
       def self.class_for(status)
@@ -37,17 +37,17 @@ module LinkedIn
         nil
       end
 
-      def self.message_from(body) = body && body["message"]
+      def self.message_from(body, status) = body.to_h.fetch("message") { "HTTP #{status}" }
 
       def self.code_from(body) = body && (body["serviceErrorCode"] || body["code"])
 
-      # Hook for subclasses that read more from the response.
+      # Internal hook: subclasses add constructor options read from the response.
       def self.extra_options(_response) = {}
 
       private_class_method :class_for, :parse_body, :message_from, :code_from
 
-      def initialize(message = nil, status:, code: nil, body: nil)
-        super(Array(message).fetch(0) { "HTTP #{status}" })
+      def initialize(message, status:, code: nil, body: nil)
+        super(message)
         @status = status
         @code = code
         @body = body
@@ -69,7 +69,7 @@ module LinkedIn
 
       def self.extra_options(response) = { retry_after: response["Retry-After"]&.to_i }
 
-      def initialize(message = nil, status:, code: nil, body: nil, retry_after: nil)
+      def initialize(message, status:, code: nil, body: nil, retry_after: nil)
         super(message, status: status, code: code, body: body)
         @retry_after = retry_after
       end
