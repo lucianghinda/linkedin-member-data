@@ -74,16 +74,6 @@ client.changelog(count: 50).each { |event| puts event.id }
 client.changelog.each.first(5)
 ```
 
-### `initialize(connection, since: = nil, count: = DEFAULT_COUNT)` <a id="method-i-initialize"></a> <a id="initialize-instance_method"></a>
-- **@api** private
-- **@param** `connection` [Connection] used for every request.
-- **@param** `since` [Time, Date, Integer, nil] first `processedAt` to fetch.
-Integer is epoch milliseconds. A Date is midnight UTC.
-- **@param** `count` [Integer] events per request, from 1 to 50.
-- **@raise** [ArgumentError] when `count` is outside 1..50 or `since` has an unsupported type.
-Raised before any request.
-- **@return** [Changelog] a new instance of Changelog
-
 ### `page(start_time)` <a id="method-i-page"></a> <a id="page-instance_method"></a>
 Fetches one raw page. No overlap handling, so the cursor event comes back
 again.

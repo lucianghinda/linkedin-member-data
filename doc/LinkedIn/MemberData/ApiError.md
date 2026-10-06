@@ -35,17 +35,6 @@ when the body has neither). `body` is the parsed JSON body (nil when the body
 is empty, not JSON, or not an object).
 - **@return** [Integer, String, Hash, nil] `status`, `code` or `body`.
 
-## Public Class Methods
-### `extra_options(_response)` <a id="method-c-extra_options"></a> <a id="extra_options-class_method"></a>
-Internal hook: subclasses add constructor options read from the response.
-- **@api** private
-
-### `from_response(response)` <a id="method-c-from_response"></a> <a id="from_response-class_method"></a>
-Builds the error class that fits the response status.
-- **@api** private
-- **@param** `response` [Net::HTTPResponse] a non-2xx response.
-- **@return** [ApiError] an instance of the subclass for the status.
-
 ## Public Instance Methods
 ### `initialize(message, status:, code: = nil, body: = nil)` <a id="method-i-initialize"></a> <a id="initialize-instance_method"></a>
 - **@param** `message` [String] `message` from the body, or "HTTP <status>".

@@ -60,12 +60,6 @@ client.snapshot(:connections).each { |row| puts row["First Name"] }
 client.snapshot(:connections).each.first(3)
 ```
 
-### `initialize(connection, domain)` <a id="method-i-initialize"></a> <a id="initialize-instance_method"></a>
-- **@api** private
-- **@param** `connection` [Connection] used for every request.
-- **@param** `domain` [String, nil] domain name as sent to the API. `nil` means all domains.
-- **@return** [Snapshot] a new instance of Snapshot
-
 ### `page(start)` <a id="method-i-page"></a> <a id="page-instance_method"></a>
 Fetches one page by index. Does not walk. Does not hide the "No data found"
 error.

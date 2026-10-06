@@ -18,12 +18,6 @@ client.snapshot(:connections).each { |row| puts row["First Name"] }
 API path of the member authorizations resource.
 - **@return** [String]
 
-## Attributes
-### `connection` [R] <a id="attribute-i-connection"></a> <a id="connection-instance_method"></a>
-The HTTP connection used for every request.
-- **@api** private
-- **@return** [Connection]
-
 ## Public Instance Methods
 ### `authorization()` <a id="method-i-authorization"></a> <a id="authorization-instance_method"></a>
 Fetches the authorization record of the token. Sends one request.

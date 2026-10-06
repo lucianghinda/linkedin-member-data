@@ -20,4 +20,5 @@ detectors:
     exclude:
       - connection_for
 exclude_paths:
+  - bin
   - test

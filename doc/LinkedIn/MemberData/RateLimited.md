@@ -12,15 +12,6 @@ HTTP 429. Retryable.
 Seconds to wait, from the <code>Retry-After</code> header.
 - **@return** [Integer, nil] `nil` when the header is absent, is not a positive number, or is an HTTP date.
 
-## Public Class Methods
-### `extra_options(response)` <a id="method-c-extra_options"></a> <a id="extra_options-class_method"></a>
-Adds the parsed <code>Retry-After</code> header to the constructor options.
-- **@api** private
-
-### `retry_after_from(value)` <a id="method-c-retry_after_from"></a> <a id="retry_after_from-class_method"></a>
-Only a positive number of seconds counts. HTTP-dates and 0 mean "use backoff".
-- **@api** private
-
 ## Public Instance Methods
 ### `initialize(message, status:, code: = nil, body: = nil, retry_after: = nil)` <a id="method-i-initialize"></a> <a id="initialize-instance_method"></a>
 - **@param** `message` [String] error message.

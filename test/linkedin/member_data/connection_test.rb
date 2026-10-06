@@ -194,12 +194,19 @@ class LinkedIn::MemberData::ConnectionTest < Minitest::Test
     assert_kind_of Net::HTTP::Get, http.requests.first
   end
 
+  # Swaps Net::HTTP.start for the block. Removes the old method first so
+  # ruby -w stays quiet about redefinition.
   def with_net_http_start(starter)
     original = Net::HTTP.method(:start)
-    Net::HTTP.define_singleton_method(:start) { |*args, **opts, &block| starter.call(*args, **opts, &block) }
+    replace_net_http_start { |*args, **opts, &block| starter.call(*args, **opts, &block) }
     yield
   ensure
-    Net::HTTP.define_singleton_method(:start, original)
+    replace_net_http_start(&original)
+  end
+
+  def replace_net_http_start(&)
+    Net::HTTP.singleton_class.send(:remove_method, :start)
+    Net::HTTP.define_singleton_method(:start, &)
   end
 
   def test_socket_error_is_retried_then_wrapped
