@@ -27,7 +27,7 @@ module LinkedIn
       def self.normalize(domain)
         case domain
         when Symbol then domain.to_s.upcase
-        when NilClass, String then domain
+        when nil, String then domain
         else raise ArgumentError, "domain must be a Symbol or String, got #{domain.class}"
         end
       end

@@ -9,15 +9,14 @@ module LinkedIn
       module_function
 
       def time_from_ms(milliseconds)
-        case milliseconds
-        when NilClass then nil
-        else Time.at(Rational(milliseconds, 1000)).utc
-        end
+        return nil if milliseconds.nil?
+
+        Time.at(Rational(milliseconds, 1000)).utc
       end
 
       def epoch_ms(value)
         case value
-        when NilClass, Integer then value
+        when nil, Integer then value
         when Time, Date then from_time(value)
         else raise ArgumentError, "expected Time, Date or Integer epoch milliseconds, got #{value.class}"
         end
