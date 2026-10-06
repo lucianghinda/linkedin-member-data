@@ -1,0 +1,19 @@
+{
+  "paging": {
+    "start": 0,
+    "count": 10,
+    "links": [
+      { "type": "application/json", "rel": "next", "href": "/rest/memberSnapshotData?q=criteria&start=1&domain=CONNECTIONS" }
+    ],
+    "total": 16
+  },
+  "elements": [
+    {
+      "snapshotDomain": "CONNECTIONS",
+      "snapshotData": [
+        { "First Name": "Ada", "Company": "Analytical Engines" },
+        { "First Name": "Grace", "Company": "Navy" }
+      ]
+    }
+  ]
+}

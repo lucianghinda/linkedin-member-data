@@ -1,0 +1,11 @@
+{
+  "paging": { "start": 0, "count": 10, "links": [], "total": 1 },
+  "elements": [
+    {
+      "snapshotDomain": "PROFILE",
+      "snapshotData": [
+        { "First Name": "Tom", "Last Name": "Cruise", "Headline": "Marketing Manager" }
+      ]
+    }
+  ]
+}

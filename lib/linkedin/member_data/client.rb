@@ -13,6 +13,10 @@ module LinkedIn
         @connection = connection_for(connection, access_token:, retries:, timeout:, logger:)
       end
 
+      def snapshot(domain = nil)
+        Snapshot.new(connection, Domains.normalize(domain))
+      end
+
       def authorization
         element = member_authorizations.first
         Authorization.from_api(element) unless element.nil?
