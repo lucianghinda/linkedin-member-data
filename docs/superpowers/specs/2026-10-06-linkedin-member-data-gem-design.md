@@ -221,6 +221,7 @@ at the end if any domain failed.
 ```
 LinkedIn::MemberData::Error < StandardError
   ConfigurationError            # missing or empty token
+  ConnectionError               # network failure after all retries (retryable inside Connection)
   ApiError                      # attrs: status, code, message, body
     Unauthorized   (401)
     Forbidden      (403)
