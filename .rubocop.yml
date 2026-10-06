@@ -7,3 +7,12 @@ Style/StringLiterals:
 
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: double_quotes
+
+# Tests use compact class names like LinkedIn::MemberData::FooTest.
+Style/ClassAndModuleChildren:
+  Exclude:
+    - "test/**/*"
+
+# Public API is documented in the README.
+Style/Documentation:
+  Enabled: false
