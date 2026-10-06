@@ -147,6 +147,12 @@ class LinkedIn::MemberData::ConnectionTest < Minitest::Test
     assert_equal 1, @transport.requests.size
   end
 
+  def test_retries_must_be_a_nonnegative_integer
+    [-1, 1.5, "2", nil].each do |retries|
+      assert_raises(ArgumentError) { Connection.new(access_token: "tok", retries: retries) }
+    end
+  end
+
   def test_retries_network_errors_then_raises_connection_error
     @transport.fail_with(Net::ReadTimeout.new).fail_with(Errno::ECONNRESET.new).fail_with(Net::OpenTimeout.new)
 
@@ -189,8 +195,8 @@ class LinkedIn::MemberData::ConnectionTest < Minitest::Test
     result = with_net_http_start(starter) { Connection.new(access_token: "tok", timeout: 7).get("/x") }
 
     assert_equal({}, result)
-    assert_equal ["api.linkedin.com", 443, true, 7, 7, 7],
-                 seen.values_at(:host, :port, :use_ssl, :open_timeout, :read_timeout, :write_timeout)
+    assert_equal ["api.linkedin.com", 443, true, 7, 7, 7, 0],
+                 seen.values_at(:host, :port, :use_ssl, :open_timeout, :read_timeout, :write_timeout, :max_retries)
     assert_kind_of Net::HTTP::Get, http.requests.first
   end
 

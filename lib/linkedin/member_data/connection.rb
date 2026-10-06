@@ -45,7 +45,7 @@ module LinkedIn
         # @return [Net::HTTPResponse]
         def call(request, uri)
           Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: @timeout,
-                                              read_timeout: @timeout, write_timeout: @timeout) do |http|
+                                              read_timeout: @timeout, write_timeout: @timeout, max_retries: 0) do |http|
             http.request(request)
           end
         end
@@ -83,12 +83,15 @@ module LinkedIn
 
       # @param access_token [String] OAuth token. Sent as a Bearer header.
       # @param retries [Integer] retries on 429, 5xx and network errors. `0` turns retries off.
+      #   Must be a nonnegative integer.
       # @param timeout [Integer, Float] timeout in seconds for the default transport.
       # @param logger [Logger, nil] gets one debug line per request.
       # @param sleeper [#call] called with the seconds to wait between retries.
       # @param transport [#call] takes `(request, uri)` and returns a response. Replaced in tests.
       def initialize(access_token:, retries: 3, timeout: 30, logger: nil, sleeper: Kernel.method(:sleep),
                      transport: NetHttpTransport.new(timeout: timeout))
+        raise ArgumentError, "retries must be a nonnegative integer" unless retries.is_a?(Integer) && retries >= 0
+
         @headers = HEADERS.merge("Authorization" => "Bearer #{access_token}")
         @retrier = Retrier.new(retries: retries, sleeper: sleeper)
         @logger = logger

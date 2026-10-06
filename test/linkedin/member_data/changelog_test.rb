@@ -29,6 +29,13 @@ class LinkedIn::MemberData::ChangelogTest < Minitest::Test
     assert_empty @transport.requests
   end
 
+  def test_rejects_count_one_before_the_cursor_can_stall
+    error = assert_raises(ArgumentError) { @client.changelog(count: 1) }
+
+    assert_match(/between 2 and 50/, error.message)
+    assert_empty @transport.requests
+  end
+
   def test_since_accepts_integer_and_nil
     assert_equal 1_000, @client.changelog(since: 1_000).since
     assert_nil @client.changelog.since

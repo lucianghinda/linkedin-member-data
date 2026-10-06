@@ -31,7 +31,7 @@ module LinkedIn
 
       # Allowed values for `count`.
       # @return [Range<Integer>]
-      COUNT_RANGE = (1..50)
+      COUNT_RANGE = (2..50)
 
       # Default for `count`.
       # @return [Integer]
@@ -72,7 +72,7 @@ module LinkedIn
       private_constant :Walk
 
       # Settings of this view. `since` is the first `processedAt` to fetch, in epoch milliseconds
-      # (`nil` starts at the oldest event). `count` is the number of events per request, from 1 to 50.
+      # (`nil` starts at the oldest event). `count` is the number of events per request, from 2 to 50.
       # @return [Integer, nil] `since` or `count`. `count` is never nil.
       attr_reader :since, :count
 
@@ -80,8 +80,8 @@ module LinkedIn
       # @param connection [Connection] used for every request.
       # @param since [Time, Date, Integer, nil] first `processedAt` to fetch.
       #   Integer is epoch milliseconds. A Date is midnight UTC.
-      # @param count [Integer] events per request, from 1 to 50.
-      # @raise [ArgumentError] when `count` is outside 1..50 or `since` has an unsupported type.
+      # @param count [Integer] events per request, from 2 to 50. One slot is needed for the cursor overlap.
+      # @raise [ArgumentError] when `count` is outside 2..50 or `since` has an unsupported type.
       #   Raised before any request.
       def initialize(connection, since: nil, count: DEFAULT_COUNT)
         @count = count

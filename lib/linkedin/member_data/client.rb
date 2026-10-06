@@ -58,9 +58,9 @@ module LinkedIn
       #   client.changelog(since: last_seen).each { |event| puts event.id }
       # @param since [Time, Date, Integer, nil] first `processedAt` to fetch.
       #   Integer is epoch milliseconds. A Date is midnight UTC. `nil` starts at the oldest event.
-      # @param count [Integer] events per request, from 1 to 50.
+      # @param count [Integer] events per request, from 2 to 50.
       # @return [Changelog]
-      # @raise [ArgumentError] when `count` is outside 1..50 or `since` has an unsupported type.
+      # @raise [ArgumentError] when `count` is outside 2..50 or `since` has an unsupported type.
       #   Raised before any request.
       def changelog(since: nil, count: Changelog::DEFAULT_COUNT)
         Changelog.new(connection, since: since, count: count)

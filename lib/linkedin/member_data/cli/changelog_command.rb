@@ -9,7 +9,7 @@ module LinkedIn
         # @return [Array<Array>]
         OPTIONS = [
           ["--since DATE", SinceParser, "ISO date or datetime"],
-          ["--count N", Integer, "Events per request (1..50)"],
+          ["--count N", Integer, "Events per request (2..50)"],
           ["--out FILE", "Write to FILE instead of stdout"]
         ].freeze
 
