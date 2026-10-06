@@ -18,11 +18,27 @@ gem install linkedin-member-data
 
 ## Getting a token
 
-1. Create an app in the [LinkedIn Developer Portal](https://www.linkedin.com/developers/apps/) using the [Member Data Portability (Member) Default Company](https://www.linkedin.com/company/member-data-portability-member-default-company) page.
-2. Under Products, request access to **Member Data Portability API (Member)**.
-3. Open **Docs and tools > OAuth Token Tools**, create a token with scope `r_dma_portability_self_serve`, and consent.
+The gem needs an access token for the **Member Data Portability (Member)** API product. This product lets a LinkedIn member download their own data. LinkedIn's guide is at [Member Data Portability (Member)](https://learn.microsoft.com/en-us/linkedin/dma/member-data-portability/member-data-portability-member/). The short version:
 
-Tokens last 60 days. Only EEA and Swiss members can consent today.
+### 1. Request access
+
+1. Sign in to the [LinkedIn Developer Portal](https://www.linkedin.com/developers/apps/) and click **Create app**.
+2. For the LinkedIn Page, pick the [Member Data Portability (Member) Default Company](https://www.linkedin.com/company/member-data-portability-member-default-company). Do not create a new company page: LinkedIn only grants this product to apps attached to that default page.
+3. Open the app's **Products** tab and click **Request access** on **Member Data Portability API (Member)**. Accept the terms. Access is granted right away.
+
+### 2. Generate the token
+
+1. In the Developer Portal, open **Docs and tools > OAuth Token Tools** (the [OAuth 2.0 token generator](https://www.linkedin.com/developers/tools/oauth)).
+2. Click **Create token**, pick the app from step 1, and select the scope `r_dma_portability_self_serve`.
+3. Click **Request access token**, sign in, read the consent screen and click **Allow**.
+4. Copy the token and keep it secret. Pass it as `access_token:` or set `LINKEDIN_ACCESS_TOKEN`.
+
+Good to know:
+
+- Tokens last 60 days. Generate a new one the same way when it expires.
+- Only members in the European Economic Area and Switzerland can consent today.
+- After consent, LinkedIn starts building your snapshot and archiving changelog events. Some snapshot domains appear sooner than others. Changelog events are kept for 28 days.
+- The same endpoints also serve the third-party product (`r_dma_portability_3rd_party`), which uses the normal [3-legged OAuth flow](https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow). This gem does not implement that flow; pass a token obtained elsewhere.
 
 ## Quick start
 
@@ -69,7 +85,7 @@ Pages are walked until LinkedIn answers "No data found for this memberId". That 
 ## Changelog
 
 ```ruby
-log = client.changelog(since: Date.new(2026, 9, 1), count: 10)   # since: Time, Date or epoch ms; count: 1..50
+log = client.changelog(since: Date.new(2026, 9, 1), count: 10)   # since: Time, Date or epoch ms; count: 2..50
 
 log.each do |event|
   event.id; event.method; event.resource_name; event.resource_id
@@ -85,7 +101,7 @@ The API returns the cursor event again on the next page. The gem skips events it
 
 `event.method` is the API field (`CREATE`, `UPDATE`, ...). It shadows Ruby's `Object#method` on purpose, so `event.method(:name)` does not work on an Event.
 
-`count` defaults to 10. A value outside 1..50 raises `ArgumentError` before any request.
+`count` defaults to 10. A value outside 2..50 raises `ArgumentError` before any request. A count of 1 cannot advance past the repeated cursor event.
 
 Event fields: `id, activity_id, activity_status, config_version, owner, actor, resource_name, resource_id, resource_uri, method, method_name, captured_at, processed_at, activity, processed_activity, sibling_activities, parent_sibling_activities, raw`.
 
@@ -122,6 +138,8 @@ LinkedIn::MemberData::Client.new(
 ```
 
 Retries wait for `Retry-After` when it is present, capped at 60 seconds. Otherwise the wait grows with each try (exponential backoff).
+
+`retries` must be a nonnegative integer; invalid values raise `ArgumentError` when the client is created. Net::HTTP's internal retries are disabled so this option controls every retry.
 
 ## Errors
 

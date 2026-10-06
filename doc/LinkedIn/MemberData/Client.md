@@ -36,8 +36,8 @@ Returns a lazy view over the changelog of the last 28 days. No request is sent
 until you iterate.
 - **@param** `since` [Time, Date, Integer, nil] first `processedAt` to fetch.
 Integer is epoch milliseconds. A Date is midnight UTC. `nil` starts at the oldest event.
-- **@param** `count` [Integer] events per request, from 1 to 50.
-- **@raise** [ArgumentError] when `count` is outside 1..50 or `since` has an unsupported type.
+- **@param** `count` [Integer] events per request, from 2 to 50.
+- **@raise** [ArgumentError] when `count` is outside 2..50 or `since` has an unsupported type.
 Raised before any request.
 - **@return** [Changelog]
 

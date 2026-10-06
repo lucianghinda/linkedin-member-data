@@ -45,13 +45,13 @@ API path of the changelog resource.
 ### `count` [R] <a id="attribute-i-count"></a> <a id="count-instance_method"></a>
 Settings of this view. `since` is the first `processedAt` to fetch, in epoch
 milliseconds (`nil` starts at the oldest event). `count` is the number of
-events per request, from 1 to 50.
+events per request, from 2 to 50.
 - **@return** [Integer, nil] `since` or `count`. `count` is never nil.
 
 ### `since` [R] <a id="attribute-i-since"></a> <a id="since-instance_method"></a>
 Settings of this view. `since` is the first `processedAt` to fetch, in epoch
 milliseconds (`nil` starts at the oldest event). `count` is the number of
-events per request, from 1 to 50.
+events per request, from 2 to 50.
 - **@return** [Integer, nil] `since` or `count`. `count` is never nil.
 
 ## Public Instance Methods
