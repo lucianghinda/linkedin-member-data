@@ -21,6 +21,12 @@
 - Run all tests with `bundle exec rake test`.
 - Commit after every task. Use Conventional Commit prefixes (`feat:`, `test:`, `chore:`, `docs:`).
 - Simple technical English in comments and docs. Only comment what is not obvious from the code.
+- RuboCop inherits the quality_gate ruby profile, which enforces Sandi Metz limits on `lib/`:
+  methods <= 5 lines, classes <= 100 lines, AbcSize <= 16, cyclomatic complexity <= 6,
+  <= 4 positional parameters (keyword args do not count). Tests are exempt from the size cops.
+  The code in each task is the reference for behavior and names; when a method is longer than
+  5 lines, split it into small private methods with clear names. Never change public method
+  names, signatures, or the tests to satisfy a cop, and never disable a cop inline.
 
 ## File structure
 
