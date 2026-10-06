@@ -83,6 +83,8 @@ log.pages.each { |page| page.events; page.next_start_time }
 
 The API returns the cursor event again on the next page. The gem skips events it has already seen. Iteration stops when a page has no new events, or when the last event has no `processedAt`.
 
+`event.method` is the API field (`CREATE`, `UPDATE`, ...). It shadows Ruby's `Object#method` on purpose, so `event.method(:name)` does not work on an Event.
+
 `count` defaults to 10. A value outside 1..50 raises `ArgumentError` before any request.
 
 Event fields: `id, activity_id, activity_status, config_version, owner, actor, resource_name, resource_id, resource_uri, method, method_name, captured_at, processed_at, activity, processed_activity, sibling_activities, parent_sibling_activities, raw`.
@@ -156,7 +158,7 @@ linkedin-member-data auth
 linkedin-member-data version
 ```
 
-Use `-h` or `--help` to print usage. The token comes from `--token TOKEN` (before the command) or `LINKEDIN_ACCESS_TOKEN`. Data goes to stdout or `--out FILE`. Progress and errors go to stderr. `--since` takes an ISO date (midnight UTC) or an ISO datetime.
+Use `-h` or `--help` to print usage. The DOMAIN argument is upcased, so `snapshot connections` works. The token comes from `--token TOKEN` (before the command) or `LINKEDIN_ACCESS_TOKEN`. Data goes to stdout or `--out FILE`. Progress and errors go to stderr. `--since` takes an ISO date (midnight UTC) or an ISO datetime.
 
 `snapshot --all` writes one `<DOMAIN>.json` per domain. Without `--out-dir DIR` it is a usage error (exit 2). A failing domain is reported and the run continues. The exit code is 1 at the end. Unauthorized and Forbidden stop the run, because a bad token fails every domain.
 
