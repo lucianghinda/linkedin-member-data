@@ -173,7 +173,13 @@ bin/setup
 bundle exec rake               # tests + rubocop
 bundle exec rake branchproof   # MC/DC coverage (Ruby 4.0+)
 bundle exec rake quality       # quality_gate fast, verify, audit
+bundle exec rake docs          # YARD Markdown docs in doc/ and llms.txt
+ruby bin/prepare_release       # full gate, then builds pkg/<gem>.gem
 ```
+
+## For AI agents
+
+The gem ships its API reference as Markdown. Start at `llms.txt` in the gem root, which links every page under `doc/`. The same files are inside the installed gem (`gem contents linkedin-member-data | grep doc/`).
 
 ## License
 
