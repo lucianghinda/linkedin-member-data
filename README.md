@@ -22,7 +22,7 @@ gem install linkedin-member-data
 2. Under Products, request access to **Member Data Portability API (Member)**.
 3. Open **Docs and tools > OAuth Token Tools**, create a token with scope `r_dma_portability_self_serve`, and consent.
 
-Tokens last 60 days. At the time of writing, only members in the EEA and Switzerland can consent.
+Tokens last 60 days. Only EEA and Swiss members can consent today.
 
 ## Quick start
 
@@ -40,6 +40,8 @@ client.changelog(since: Time.now - 7 * 86_400).each do |event|
 end
 ```
 
+Row keys differ per domain. These are CONNECTIONS keys.
+
 ## Snapshot
 
 ```ruby
@@ -55,7 +57,7 @@ snap.pages.each do |page|
   page.domain; page.rows; page.start; page.count; page.total; page.next?; page.raw
 end
 
-snap.page(0)                           # one page by index, no walking
+snap.page(0)                           # one page by index, no walking. Raises past the end.
 
 LinkedIn::MemberData::Domains::ALL     # list of domain names
 ```
@@ -81,7 +83,11 @@ log.pages.each { |page| page.events; page.next_start_time }
 
 The API returns the cursor event again on the next page. The gem skips events it has already seen. Iteration stops when a page has no new events, or when the last event has no `processedAt`.
 
-Known limit: if more than `count` events share one `processedAt`, the extra events cannot be reached with the cursor. Use a larger `count` (up to 50) if you see this.
+`count` defaults to 10. A value outside 1..50 raises `ArgumentError` before any request.
+
+Event fields: `id, activity_id, activity_status, config_version, owner, actor, resource_name, resource_id, resource_uri, method, method_name, captured_at, processed_at, activity, processed_activity, sibling_activities, parent_sibling_activities, raw`.
+
+Known limit: when more than `count` events share one `processedAt`, the cursor cannot reach the rest. Raise `count` (max 50) to reduce the chance.
 
 To resume later, store the last `event.processed_at_ms` and pass it as `since:`.
 
@@ -113,7 +119,7 @@ LinkedIn::MemberData::Client.new(
 )
 ```
 
-Retries wait for the `Retry-After` header when LinkedIn sends one. The wait is capped at 60 seconds. Otherwise the wait grows with each try (exponential backoff).
+Retries wait for `Retry-After` when it is present, capped at 60 seconds. Otherwise the wait grows with each try (exponential backoff).
 
 ## Errors
 
@@ -125,7 +131,7 @@ LinkedIn::MemberData::Error
     Unauthorized Forbidden NotFound VersionError RateLimited ServerError
 ```
 
-`ConnectionError` covers timeouts, reset connections, DNS and TLS failures. `RateLimited` also has `retry_after` (seconds or nil).
+`ConnectionError` covers timeouts, reset connections, DNS and TLS failures. `retryable?` is true for `RateLimited`, `ServerError` and `ConnectionError`. `ApiError#code` comes from `serviceErrorCode` or `code` in the response body. `RateLimited#retry_after` is nil when the header is absent.
 
 ```ruby
 begin
@@ -150,11 +156,13 @@ linkedin-member-data auth
 linkedin-member-data version
 ```
 
-The token comes from `--token TOKEN` (before the command) or `LINKEDIN_ACCESS_TOKEN`. Data goes to stdout or `--out FILE`. Progress and errors go to stderr. `--since` takes an ISO date (midnight UTC) or an ISO datetime.
+Use `-h` or `--help` to print usage. The token comes from `--token TOKEN` (before the command) or `LINKEDIN_ACCESS_TOKEN`. Data goes to stdout or `--out FILE`. Progress and errors go to stderr. `--since` takes an ISO date (midnight UTC) or an ISO datetime.
 
-`snapshot --all` needs `--out-dir DIR` and writes one `<DOMAIN>.json` per domain. A domain that fails is reported and the run goes on, and the exit code is 1 at the end. The run stops at once on `Unauthorized` or `Forbidden`, because a bad token fails every domain.
+`snapshot --all` writes one `<DOMAIN>.json` per domain. Without `--out-dir DIR` it is a usage error (exit 2). A failing domain is reported and the run continues. The exit code is 1 at the end. Unauthorized and Forbidden stop the run, because a bad token fails every domain.
 
-Exit codes: 0 success, 1 API or network error, 2 usage error.
+`auth` exits 1 with "No authorization found for this token" when none exists.
+
+Exit codes: 0 success, 1 API error, network error or file write error, 2 usage error.
 
 ## Development
 
