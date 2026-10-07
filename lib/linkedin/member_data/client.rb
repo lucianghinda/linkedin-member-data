@@ -58,7 +58,7 @@ module LinkedIn
       # @yieldparam entry [Export::Entry] `:fetching` before each domain, then the final entry.
       # @return [Export::Manifest]
       # @raise [Unauthorized, Forbidden] when the token is rejected. The manifest is written first.
-      # @raise [ArgumentError] when a domain is not a Symbol or a String.
+      # @raise [ArgumentError] when a domain is nil, blank, or not made of A-Z, 0-9 and _.
       # @raise [SystemCallError] when a file cannot be written.
       def export(dir, domains: Domains::ALL, &progress)
         Export.new(self, dir, domains: domains).run(&progress)

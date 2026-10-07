@@ -164,4 +164,21 @@ class LinkedIn::MemberData::ExportTest < Minitest::Test
     assert_equal 1, manifest.entries.size
     assert_equal 1, @transport.requests.size
   end
+
+  def assert_rejected_without_side_effects(bad)
+    parent = File.dirname(@dir)
+    before = Dir.children(parent).sort
+
+    assert_raises(ArgumentError) { @client.export(@dir, domains: [bad]) }
+
+    assert_equal before, Dir.children(parent).sort
+    assert_empty Dir.children(@dir)
+    assert_empty @transport.requests
+  end
+
+  def test_rejects_nil_domain = assert_rejected_without_side_effects(nil)
+
+  def test_rejects_path_like_domain = assert_rejected_without_side_effects("../x")
+
+  def test_rejects_blank_domain = assert_rejected_without_side_effects("")
 end

@@ -17,6 +17,10 @@ module LinkedIn
       # @return [String]
       MANIFEST_FILE = "manifest.json"
 
+      # Allowed domain names. Keeps odd names such as `../x` away from file paths.
+      # @return [Regexp]
+      DOMAIN_NAME = /\A[A-Z0-9_]+\z/
+
       # @return [String] export directory.
       attr_reader :dir
 
@@ -26,11 +30,11 @@ module LinkedIn
       # @param client [Client]
       # @param dir [String] directory to write into. Created when missing.
       # @param domains [Array<Symbol, String>] domains to export. Symbols are upcased. Duplicates are dropped.
-      # @raise [ArgumentError] when a domain is not a Symbol or a String.
+      # @raise [ArgumentError] when a domain is nil, blank, or not made of A-Z, 0-9 and _.
       def initialize(client, dir, domains: Domains::ALL)
         @client = client
         @dir = dir
-        @domains = domains.map { |domain| Domains.normalize(domain) }.uniq
+        @domains = domains.map { |domain| valid_name(domain) }.uniq
       end
 
       # Runs the export. Not thread-safe: build one Export per run.
@@ -46,6 +50,13 @@ module LinkedIn
       end
 
       private
+
+      def valid_name(domain)
+        name = Domains.normalize(domain)
+        return name if name.to_s.match?(DOMAIN_NAME)
+
+        raise ArgumentError, "invalid domain: #{domain.inspect}"
+      end
 
       # `entries` is a parameter so the rescue below sees the same array.
       def export_all(progress, entries = [])

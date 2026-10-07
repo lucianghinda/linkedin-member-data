@@ -62,6 +62,7 @@ LinkedIn::MemberData::ServerError,Class,LinkedIn/MemberData/ServerError.md
 LinkedIn::MemberData::ServerError.retryable?,Method,LinkedIn/MemberData/ServerError.md#method-i-retryable-3F
 LinkedIn::MemberData::Export,Class,LinkedIn/MemberData/Export.md
 LinkedIn::MemberData::Export.MANIFEST_FILE,Constant,LinkedIn/MemberData/Export.md#constant-MANIFEST_FILE
+LinkedIn::MemberData::Export.DOMAIN_NAME,Constant,LinkedIn/MemberData/Export.md#constant-DOMAIN_NAME
 LinkedIn::MemberData::Export.initialize,Method,LinkedIn/MemberData/Export.md#method-i-initialize
 LinkedIn::MemberData::Export.run,Method,LinkedIn/MemberData/Export.md#method-i-run
 LinkedIn::MemberData::Export.dir,Attribute,LinkedIn/MemberData/Export.md#attribute-i-dir

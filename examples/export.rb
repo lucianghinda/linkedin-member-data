@@ -6,7 +6,8 @@
 require "linkedin/member_data"
 
 dir = ARGV.fetch(0, "linkedin-export")
-client = LinkedIn::MemberData::Client.new(access_token: ENV.fetch("LINKEDIN_ACCESS_TOKEN"))
+token = ENV.fetch("LINKEDIN_ACCESS_TOKEN") { abort "Set LINKEDIN_ACCESS_TOKEN to your access token" }
+client = LinkedIn::MemberData::Client.new(access_token: token)
 
 begin
   manifest = client.export(dir) do |entry|

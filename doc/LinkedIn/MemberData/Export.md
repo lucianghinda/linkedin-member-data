@@ -14,6 +14,11 @@ is recorded as <code>:failed</code> and the run goes on. `Unauthorized` and
 way); the manifest is still written before the error propagates.
 
 ## Constants
+### `DOMAIN_NAME` <a id="constant-DOMAIN_NAME"></a> <a id="DOMAIN_NAME-constant"></a>
+Allowed domain names. Keeps odd names such as <code>../x</code> away from file
+paths.
+- **@return** [Regexp]
+
 ### `MANIFEST_FILE` <a id="constant-MANIFEST_FILE"></a> <a id="MANIFEST_FILE-constant"></a>
 File name of the manifest written next to the domain files.
 - **@return** [String]
@@ -30,7 +35,7 @@ File name of the manifest written next to the domain files.
 - **@param** `client` [Client]
 - **@param** `dir` [String] directory to write into. Created when missing.
 - **@param** `domains` [Array<Symbol, String>] domains to export. Symbols are upcased. Duplicates are dropped.
-- **@raise** [ArgumentError] when a domain is not a Symbol or a String.
+- **@raise** [ArgumentError] when a domain is nil, blank, or not made of A-Z, 0-9 and _.
 - **@return** [Export] a new instance of Export
 
 ### `run(&progress)` <a id="method-i-run"></a> <a id="run-instance_method"></a>

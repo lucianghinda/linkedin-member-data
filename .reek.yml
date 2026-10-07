@@ -20,6 +20,7 @@ detectors:
     exclude:
       - connection_for
 exclude_paths:
+  # examples are scripts, not library code.
   - examples
   - vendor
   - bin

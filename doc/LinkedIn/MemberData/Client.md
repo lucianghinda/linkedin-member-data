@@ -72,7 +72,7 @@ Downloads snapshot domains into a directory, one JSON file each, plus
 - **@param** `dir` [String] directory to write into. Created when missing.
 - **@param** `domains` [Array<Symbol, String>] domains to export. Defaults to every known domain.
 - **@raise** [Unauthorized, Forbidden] when the token is rejected. The manifest is written first.
-- **@raise** [ArgumentError] when a domain is not a Symbol or a String.
+- **@raise** [ArgumentError] when a domain is nil, blank, or not made of A-Z, 0-9 and _.
 - **@raise** [SystemCallError] when a file cannot be written.
 - **@return** [Export::Manifest]
 - **@yieldparam** `entry` [Export::Entry] `:fetching` before each domain, then the final entry.

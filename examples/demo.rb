@@ -43,7 +43,8 @@ def show_changelog(client)
 end
 
 begin
-  client = LinkedIn::MemberData::Client.new(access_token: ENV.fetch("LINKEDIN_ACCESS_TOKEN"))
+  token = ENV.fetch("LINKEDIN_ACCESS_TOKEN") { abort "Set LINKEDIN_ACCESS_TOKEN to your access token" }
+  client = LinkedIn::MemberData::Client.new(access_token: token)
   show_authorization(client)
   show_profile(client)
   show_connections(client)
