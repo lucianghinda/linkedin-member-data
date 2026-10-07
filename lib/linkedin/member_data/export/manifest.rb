@@ -30,15 +30,15 @@ module LinkedIn
         # @return [Boolean] true when no domain failed.
         def success? = failed.empty?
 
-        # @return [Hash{String => Object}] the manifest.json content.
-        def to_h
+        # @return [Hash{String => Object}] the manifest.json content (not `to_h`, which is the Data member hash).
+        def as_json
           { "exported_at" => exported_at.iso8601, "gem_version" => gem_version,
             "domains" => entries.map(&:to_manifest) }
         end
 
         # Writes manifest.json as pretty JSON with a trailing newline.
         # @return [Integer] bytes written.
-        def write = File.write(path, "#{JSON.pretty_generate(to_h)}\n")
+        def write = File.write(path, "#{JSON.pretty_generate(as_json)}\n")
       end
     end
   end

@@ -27,8 +27,8 @@ class LinkedIn::MemberData::ExportManifestTest < Minitest::Test
     assert_predicate Export::Manifest.build("out", entries.first(2)), :success?
   end
 
-  def test_to_h_lists_domains_in_order
-    hash = Export::Manifest.build("out", entries).to_h
+  def test_as_json_lists_domains_in_order
+    hash = Export::Manifest.build("out", entries).as_json
 
     assert_equal %w[exported_at gem_version domains], hash.keys
     assert_equal(%w[PROFILE INBOX ADS_CLICKED], hash["domains"].map { |d| d["domain"] })
@@ -43,7 +43,7 @@ class LinkedIn::MemberData::ExportManifestTest < Minitest::Test
 
       content = File.read(manifest.path)
 
-      assert_equal "#{JSON.pretty_generate(manifest.to_h)}\n", content
+      assert_equal "#{JSON.pretty_generate(manifest.as_json)}\n", content
       assert_match(/\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\z/, JSON.parse(content)["exported_at"])
     end
   end

@@ -47,6 +47,22 @@ module LinkedIn
         Snapshot.new(connection, Domains.normalize(domain))
       end
 
+      # Downloads snapshot domains into a directory, one JSON file each, plus `manifest.json`.
+      # @example Everything, with progress
+      #   client.export("linkedin-export") { |entry| puts "#{entry.domain}: #{entry.status}" }
+      # @example A few domains
+      #   manifest = client.export("out", domains: %w[PROFILE CONNECTIONS])
+      #   manifest.success? # => true when no domain failed
+      # @param dir [String] directory to write into. Created when missing.
+      # @param domains [Array<Symbol, String>] domains to export. Defaults to every known domain.
+      # @yieldparam entry [Export::Entry] `:fetching` before each domain, then the final entry.
+      # @return [Export::Manifest]
+      # @raise [Unauthorized, Forbidden] when the token is rejected. The manifest is written first.
+      # @raise [ArgumentError] when a domain is not a Symbol or a String.
+      def export(dir, domains: Domains::ALL, &progress)
+        Export.new(self, dir, domains: domains).run(&progress)
+      end
+
       # Returns a lazy view over the changelog of the last 28 days. No request is sent until you iterate.
       #
       # @example Events of the last 7 days
