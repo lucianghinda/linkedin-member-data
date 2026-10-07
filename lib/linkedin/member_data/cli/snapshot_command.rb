@@ -50,8 +50,11 @@ module LinkedIn
         end
 
         def report(entry)
-          output.progress("Fetching #{entry.domain}...") if entry.status == :fetching
-          output.error("#{entry.domain}: #{entry.error}") if entry.failed?
+          case entry
+          in { status: :fetching, domain: } then output.progress("Fetching #{domain}...")
+          in { status: :failed, domain:, error: } then output.error("#{domain}: #{error}")
+          else nil
+          end
         end
 
         # The key comes from OptionParser's long option name (--out-dir).
