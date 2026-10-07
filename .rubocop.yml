@@ -20,16 +20,19 @@ Style/ClassAndModuleChildren:
   Exclude:
     - "test/**/*"
 
-# Size limits apply to library code. Tests are long by nature.
+# Size limits apply to library code. Tests and example scripts are long by nature.
 Metrics/MethodLength:
   Exclude:
     - "test/**/*"
+    - "examples/**/*"
 Metrics/AbcSize:
   Exclude:
     - "test/**/*"
+    - "examples/**/*"
 Metrics/ClassLength:
   Exclude:
     - "test/**/*"
+    - "examples/**/*"
 
 # Keyword arguments document themselves, so they do not count.
 Metrics/ParameterLists:
