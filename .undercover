@@ -1,3 +1,3 @@
 # Files that never run under SimpleCov. version.rb is loaded by the gemspec
 # before coverage starts; Rakefile and tests are not library code.
--x Rakefile,test/*,test/**/*,lib/linkedin/member_data/version.rb
+-x Rakefile,test/*,test/**/*,examples/*,examples/**/*,lib/linkedin/member_data/version.rb
