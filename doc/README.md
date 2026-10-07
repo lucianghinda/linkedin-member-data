@@ -101,7 +101,7 @@ Pass `domains: %w[PROFILE CONNECTIONS]` to export a subset. Domains run in order
 
 A domain that fails with an API or network error is recorded as `:failed` and the run continues. `Unauthorized` and `Forbidden` stop the run, because a bad token fails every domain. The manifest is written first, then the error is raised.
 
-Every run fetches everything again. It removes the old file of a domain before fetching it, so a failed domain never keeps stale data. Files are written to a temp file and renamed, so a crash never leaves a truncated file.
+Every run fetches the chosen domains again. It removes the old file of a domain before fetching it, so a failed domain never keeps stale data. Files are written to a temp file and renamed, so a crash never leaves a truncated file.
 
 `ruby -Ilib examples/export.rb [DIR]` is a ready-made script. The CLI does the same with `linkedin-member-data snapshot --all --out-dir DIR`.
 
