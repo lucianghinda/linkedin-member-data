@@ -28,3 +28,6 @@ Items raised by reviewers that were deliberately deferred. Revisit before 0.1.0.
   (exit 2). Narrow it later with dedicated subclasses (for example
   `Changelog::InvalidCount < ArgumentError`) or validate `--count` and
   DOMAIN in the CLI before calling the library.
+- Export: rows of one domain are held in memory (`to_a`) and then pretty
+  printed, so a large domain such as INBOX peaks at about twice its size.
+  A follow-up could stream pages into the JSON array file.
