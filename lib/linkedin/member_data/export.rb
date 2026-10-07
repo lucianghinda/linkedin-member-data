@@ -33,10 +33,10 @@ module LinkedIn
         @domains = domains.map { |domain| Domains.normalize(domain) }.uniq
       end
 
-      # Runs the export. Yields twice per domain when a block is given: an
+      # Runs the export. Not thread-safe: build one Export per run.
+      # Yields twice per domain when a block is given: an
       # entry with status `:fetching`, then the final entry.
       # @yieldparam entry [Entry]
-      # Not thread-safe. Build one Export per run.
       # @return [Manifest]
       # @raise [Unauthorized, Forbidden] when the token is rejected; the manifest is written first.
       # @raise [SystemCallError] when a file cannot be written.
@@ -47,6 +47,7 @@ module LinkedIn
 
       private
 
+      # `entries` is a parameter so the rescue below sees the same array.
       def export_all(progress, entries = [])
         domains.each_with_object(entries) { |domain, all| all << export_domain(domain, progress) }
       rescue Unauthorized, Forbidden
