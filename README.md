@@ -82,6 +82,29 @@ Rows are plain Hashes with the keys LinkedIn returns, for example `"First Name"`
 
 Pages are walked until LinkedIn answers "No data found for this memberId". That answer ends iteration and is not raised. A page with no rows also ends iteration.
 
+## Export everything
+
+```ruby
+manifest = client.export("linkedin-export") do |entry|
+  puts "#{entry.domain}: #{entry.status}"   # :fetching, then :saved, :empty or :failed
+end
+
+manifest.entries.size   # one entry per domain
+manifest.failed         # entries with status :failed
+manifest.success?       # true when nothing failed
+manifest.path           # "linkedin-export/manifest.json"
+```
+
+The folder gets one `<DOMAIN>.json` per domain and a `manifest.json`. Each file is a JSON array of rows. It is `[]` when LinkedIn has no data yet (status `:empty`). The manifest lists every domain with its status, file, row count or error.
+
+Pass `domains: %w[PROFILE CONNECTIONS]` to export a subset. Domains run in order.
+
+A domain that fails with an API or network error is recorded as `:failed` and the run continues. `Unauthorized` and `Forbidden` stop the run, because a bad token fails every domain. The manifest is written first, then the error is raised.
+
+Every run fetches everything again. It removes the old file of a domain before fetching it, so a failed domain never keeps stale data. Files are written to a temp file and renamed, so a crash never leaves a truncated file.
+
+`ruby -Ilib examples/export.rb [DIR]` is a ready-made script. The CLI does the same with `linkedin-member-data snapshot --all --out-dir DIR`.
+
 ## Changelog
 
 ```ruby
@@ -178,7 +201,7 @@ linkedin-member-data version
 
 Use `-h` or `--help` to print usage. The DOMAIN argument is upcased, so `snapshot connections` works. The token comes from `--token TOKEN` (before or after the command) or `LINKEDIN_ACCESS_TOKEN`. Data goes to stdout or `--out FILE`. Progress and errors go to stderr. `--since` takes an ISO date (midnight UTC) or an ISO datetime.
 
-`snapshot --all` writes one `<DOMAIN>.json` per domain. Without `--out-dir DIR` it is a usage error (exit 2). A failing domain is reported and the run continues. The exit code is 1 at the end. Unauthorized and Forbidden stop the run, because a bad token fails every domain.
+`snapshot --all` writes one `<DOMAIN>.json` per domain and a `manifest.json`. Without `--out-dir DIR` it is a usage error (exit 2). A failing domain is reported and the run continues. The exit code is 1 at the end. Unauthorized and Forbidden stop the run, because a bad token fails every domain.
 
 `auth` exits 1 with "No authorization found for this token" when none exists.
 

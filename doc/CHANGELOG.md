@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- `Client#export(dir, domains:)` downloads snapshot domains into a folder with a `manifest.json`. `snapshot --all` now uses it and writes the manifest too.
+- `examples/export.rb` and `examples/demo.rb`.
 - README: step-by-step guide to request API access and generate a token.
 
 ## [0.1.1] - 2026-10-06

@@ -66,6 +66,28 @@ itself.
 client.enable_changelog!  # => true
 ```
 
+### `export(dir, domains: = Domains::ALL, &progress)` <a id="method-i-export"></a> <a id="export-instance_method"></a>
+Downloads snapshot domains into a directory, one JSON file each, plus
+<code>manifest.json</code>.
+- **@param** `dir` [String] directory to write into. Created when missing.
+- **@param** `domains` [Array<Symbol, String>] domains to export. Defaults to every known domain.
+- **@raise** [Unauthorized, Forbidden] when the token is rejected. The manifest is written first.
+- **@raise** [ArgumentError] when a domain is not a Symbol or a String.
+- **@raise** [SystemCallError] when a file cannot be written.
+- **@return** [Export::Manifest]
+- **@yieldparam** `entry` [Export::Entry] `:fetching` before each domain, then the final entry.
+
+**@example Everything, with progress (the block also sees `:fetching` entries)**
+```ruby
+client.export("linkedin-export") { |entry| puts "#{entry.domain}: #{entry.status}" }
+```
+
+**@example A few domains**
+```ruby
+manifest = client.export("out", domains: %w[PROFILE CONNECTIONS])
+manifest.success? # => true when no domain failed
+```
+
 ### `initialize(access_token:, retries: = 3, timeout: = 30, logger: = nil, connection: = nil)` <a id="method-i-initialize"></a> <a id="initialize-instance_method"></a>
 Builds a client. No request is sent.
 - **@param** `access_token` [String] OAuth token with scope `r_dma_portability_self_serve`.
