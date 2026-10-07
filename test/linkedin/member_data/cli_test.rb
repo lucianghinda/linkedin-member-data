@@ -20,6 +20,10 @@ class LinkedIn::MemberData::CLITest < Minitest::Test
       @calls = []
     end
 
+    def export(dir, domains: LinkedIn::MemberData::Domains::ALL, &progress)
+      LinkedIn::MemberData::Export.new(self, dir, domains: domains).run(&progress)
+    end
+
     def snapshot(domain = nil)
       @calls << [:snapshot, domain]
       raise @failures[domain] if @failures[domain]
@@ -206,7 +210,30 @@ class LinkedIn::MemberData::CLITest < Minitest::Test
       run_cli(["snapshot", "--all", "--out-dir", dir], client: failing_inbox_client)
 
       assert_equal [{ "a" => 1 }], JSON.parse(File.read(File.join(dir, "PROFILE.json")))
-      assert_equal Domains::ALL.size - 1, Dir.children(dir).size
+      assert_equal Domains::ALL.size, Dir.children(dir).size
+    end
+  end
+
+  def test_snapshot_all_writes_a_manifest
+    client = StubClient.new(snapshots: { "PROFILE" => [{ "a" => 1 }] })
+    Dir.mktmpdir do |dir|
+      run_cli(["snapshot", "--all", "--out-dir", dir], client: client)
+
+      manifest = JSON.parse(File.read(File.join(dir, "manifest.json")))
+
+      assert_equal(Domains::ALL, manifest["domains"].map { |d| d["domain"] })
+      assert_equal "saved", manifest["domains"].find { |d| d["domain"] == "PROFILE" }["status"]
+    end
+  end
+
+  def test_snapshot_all_marks_empty_domains
+    Dir.mktmpdir do |dir|
+      run_cli(["snapshot", "--all", "--out-dir", dir], client: StubClient.new)
+
+      manifest = JSON.parse(File.read(File.join(dir, "manifest.json")))
+
+      assert_equal ["empty"], manifest["domains"].map { |d| d["status"] }.uniq
+      assert_equal "[]\n", File.read(File.join(dir, "PROFILE.json"))
     end
   end
 
@@ -229,7 +256,7 @@ class LinkedIn::MemberData::CLITest < Minitest::Test
       status, = run_cli(["snapshot", "--all", "--out-dir", dir])
 
       assert_equal 0, status
-      assert_equal Domains::ALL.size, Dir.children(dir).size
+      assert_equal Domains::ALL.size + 1, Dir.children(dir).size
     end
   end
 

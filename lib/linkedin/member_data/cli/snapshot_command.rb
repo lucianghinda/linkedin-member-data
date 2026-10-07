@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "fileutils"
-
 module LinkedIn
   module MemberData
     class CLI
@@ -44,36 +42,23 @@ module LinkedIn
           0
         end
 
-        # A failing domain is reported and the run goes on. Exit 1 at the end.
+        # Delegates to Client#export. Progress and failures go to stderr.
+        # Exit 1 when any domain failed; auth errors propagate.
         def download_all
-          FileUtils.mkdir_p(out_dir)
-          failed = Domains::ALL.reject { |domain| saved?(domain, out_dir) }
-          failed.empty? ? 0 : 1
+          manifest = client.export(out_dir) { |entry| report(entry) }
+          manifest.success? ? 0 : 1
+        end
+
+        def report(entry)
+          case entry
+          in { status: :fetching, domain: } then output.progress("Fetching #{domain}...")
+          in { status: :failed, domain:, error: } then output.error("#{domain}: #{error}")
+          else nil
+          end
         end
 
         # The key comes from OptionParser's long option name (--out-dir).
         def out_dir = options.fetch(:"out-dir") { raise UsageError, "--all needs --out-dir DIR" }
-
-        # A bad token fails every domain the same way, so Unauthorized and
-        # Forbidden stop the run at once. Other errors are per domain.
-        def saved?(domain, dir)
-          written?(domain, dir)
-        rescue Unauthorized, Forbidden
-          raise
-        rescue ApiError, ConnectionError => error
-          !reported?(domain, error)
-        end
-
-        def written?(domain, dir)
-          output.write(fetch(domain), File.join(dir, "#{domain}.json"))
-          true
-        end
-
-        # Reports the failure on stderr; true means the domain was not saved.
-        def reported?(domain, error)
-          output.error("#{domain}: #{error.message}")
-          true
-        end
 
         def fetch(domain)
           output.progress("Fetching #{domain}...")
