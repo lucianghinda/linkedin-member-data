@@ -48,7 +48,7 @@ module LinkedIn
       end
 
       # Downloads snapshot domains into a directory, one JSON file each, plus `manifest.json`.
-      # @example Everything, with progress
+      # @example Everything, with progress (the block also sees `:fetching` entries)
       #   client.export("linkedin-export") { |entry| puts "#{entry.domain}: #{entry.status}" }
       # @example A few domains
       #   manifest = client.export("out", domains: %w[PROFILE CONNECTIONS])
@@ -59,6 +59,7 @@ module LinkedIn
       # @return [Export::Manifest]
       # @raise [Unauthorized, Forbidden] when the token is rejected. The manifest is written first.
       # @raise [ArgumentError] when a domain is not a Symbol or a String.
+      # @raise [SystemCallError] when a file cannot be written.
       def export(dir, domains: Domains::ALL, &progress)
         Export.new(self, dir, domains: domains).run(&progress)
       end

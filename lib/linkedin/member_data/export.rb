@@ -25,50 +25,55 @@ module LinkedIn
 
       # @param client [Client]
       # @param dir [String] directory to write into. Created when missing.
-      # @param domains [Array<Symbol, String>] domains to export. Symbols are upcased.
+      # @param domains [Array<Symbol, String>] domains to export. Symbols are upcased. Duplicates are dropped.
       # @raise [ArgumentError] when a domain is not a Symbol or a String.
       def initialize(client, dir, domains: Domains::ALL)
         @client = client
         @dir = dir
-        @domains = domains.map { |domain| Domains.normalize(domain) }
-        @entries = []
+        @domains = domains.map { |domain| Domains.normalize(domain) }.uniq
       end
 
       # Runs the export. Yields twice per domain when a block is given: an
       # entry with status `:fetching`, then the final entry.
       # @yieldparam entry [Entry]
+      # Not thread-safe. Build one Export per run.
       # @return [Manifest]
       # @raise [Unauthorized, Forbidden] when the token is rejected; the manifest is written first.
       # @raise [SystemCallError] when a file cannot be written.
       def run(&progress)
         FileUtils.mkdir_p(dir)
-        @entries = []
-        walk(progress)
-        write_manifest
+        write_manifest(export_all(progress))
       end
 
       private
 
-      def walk(progress)
-        domains.each { |domain| @entries << export_domain(domain, progress) }
+      def export_all(progress, entries = [])
+        domains.each_with_object(entries) { |domain, all| all << export_domain(domain, progress) }
       rescue Unauthorized, Forbidden
-        write_manifest
+        # A SystemCallError from this write would mask the auth error. This is accepted.
+        write_manifest(entries)
         raise
       end
 
       def export_domain(domain, progress)
         progress&.call(Entry.fetching(domain))
-        entry = fetch_and_save(domain)
+        entry = fetch_entry(domain)
         progress&.call(entry)
         entry
       end
 
-      def fetch_and_save(domain)
-        save(domain, @client.snapshot(domain).to_a)
+      def fetch_entry(domain)
+        save(domain, fetch_rows(domain))
       rescue Unauthorized, Forbidden
         raise
       rescue ApiError, ConnectionError => error
         Entry.failed(domain, error)
+      end
+
+      # Removes a file left by an earlier run, so a failed domain never keeps stale data.
+      def fetch_rows(domain)
+        FileUtils.rm_f(path_for(domain))
+        @client.snapshot(domain).to_a
       end
 
       def save(domain, rows)
@@ -76,12 +81,17 @@ module LinkedIn
         Entry.saved(domain, rows.size)
       end
 
+      # Writes a temp file and renames it, so a crash never leaves a truncated file.
       def write_rows(domain, rows)
-        File.write(File.join(dir, "#{domain}.json"), "#{JSON.pretty_generate(rows)}\n")
+        path = path_for(domain)
+        File.write("#{path}.tmp", "#{JSON.pretty_generate(rows)}\n")
+        File.rename("#{path}.tmp", path)
       end
 
-      def write_manifest
-        Manifest.build(dir, @entries).tap(&:write)
+      def path_for(domain) = File.join(dir, "#{domain}.json")
+
+      def write_manifest(entries)
+        Manifest.build(dir, entries).tap(&:write)
       end
     end
   end

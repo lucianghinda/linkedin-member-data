@@ -21,7 +21,7 @@ class LinkedIn::MemberData::ExportTest < Minitest::Test
     fixture("snapshot_profile")["elements"].first["snapshotData"]
   end
 
-  def test_writes_one_file_per_domain_with_the_same_bytes_as_the_cli
+  def test_writes_one_file_per_domain_as_pretty_json_with_newline
     @transport.respond(200, fixture("snapshot_profile"))
 
     manifest = @client.export(@dir, domains: [:profile])
@@ -87,8 +87,7 @@ class LinkedIn::MemberData::ExportTest < Minitest::Test
 
     @client.export(@dir, domains: %w[PROFILE INBOX]) { |entry| seen << [entry.domain, entry.status] }
 
-    assert_equal([%w[PROFILE fetching], %w[PROFILE saved], %w[INBOX fetching], %w[INBOX failed]],
-                 seen.map { |domain, status| [domain, status.to_s] })
+    assert_equal [["PROFILE", :fetching], ["PROFILE", :saved], ["INBOX", :fetching], ["INBOX", :failed]], seen
   end
 
   def test_unauthorized_stops_the_run_and_writes_the_manifest
@@ -108,6 +107,7 @@ class LinkedIn::MemberData::ExportTest < Minitest::Test
     json = JSON.parse(File.read(File.join(@dir, "manifest.json")))
 
     assert_equal(["PROFILE"], json["domains"].map { |d| d["domain"] })
+    assert_equal 2, @transport.requests.size
   end
 
   def test_rejects_a_bad_domain_type_before_any_request
@@ -135,5 +135,33 @@ class LinkedIn::MemberData::ExportTest < Minitest::Test
     File.write(File.join(@dir, "blocked"), "")
 
     assert_raises(SystemCallError) { @client.export(File.join(@dir, "blocked"), domains: [:profile]) }
+  end
+
+  def test_failed_domain_removes_a_stale_file
+    File.write(File.join(@dir, "INBOX.json"), "old")
+    @transport.respond(500)
+
+    manifest = @client.export(@dir, domains: %w[INBOX])
+
+    refute_path_exists File.join(@dir, "INBOX.json")
+    assert_equal [:failed], manifest.entries.map(&:status)
+    assert_equal "failed", JSON.parse(File.read(manifest.path))["domains"].first["status"]
+  end
+
+  def test_leaves_no_temp_files
+    @transport.respond(200, fixture("snapshot_profile"))
+
+    @client.export(@dir, domains: [:profile])
+
+    assert_empty Dir.glob(File.join(@dir, "*.tmp"))
+  end
+
+  def test_duplicate_domains_export_once
+    @transport.respond(200, fixture("snapshot_profile"))
+
+    manifest = @client.export(@dir, domains: [:profile, "PROFILE"])
+
+    assert_equal 1, manifest.entries.size
+    assert_equal 1, @transport.requests.size
   end
 end
